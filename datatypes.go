@@ -7,7 +7,7 @@ const Q = 100
 // Also contains a current and next town to represent each step taken
 // Lastly contains a float keeping track of the distance covered so far along the ant's tour
 type Ant struct {
-	tabu          []Town
+	tabu          []*Town
 	cur, next     Town
 	totalDistance float64
 }
@@ -18,15 +18,19 @@ type Town struct {
 	x, y  float64
 }
 
-//Trails keep track of the trail intensity after one cycle between a pair of towns
-type Trail float64
+//Trails keep track of the total trail intensity as well as the change in trail intensity after one cycle between a pair of towns
+type Trail struct {
+	totalTrail, deltaTrail float64
+}
 
-//Map contains all the towns as well as a width
+//Map contains all the towns, the width of the map, the pheromone trail between every pair of towns, and the shortest distance found
 //Used for visual representation
 type Map struct {
-	towns []Town
-	width float64
+	towns        []*Town
+	pheromones   PheromoneTable
+	width        float64
+	shortestDist float64
 }
 
 //PheromoneTable is a matrix containing the pheromone trail intensity between every pair of towns
-type PheromoneTable [][]Trail
+type PheromoneTable [][]*Trail
