@@ -1,8 +1,5 @@
 package main
 
-//Q is a constant representing the total amount of pheromone an ant can drop along a tour
-const Q = 100
-
 //Ants contains a tabu list to keep track of all towns met so far along the ant's tour
 // Also contains a current and next town to represent each step taken
 // Lastly contains a float keeping track of the distance covered so far along the ant's tour
@@ -26,10 +23,10 @@ type Trail struct {
 //Map contains all the towns, the width of the map, the pheromone trail between every pair of towns, and the shortest distance found
 //Used for visual representation
 type Map struct {
-	towns        []*Town
-	pheromones   PheromoneTable
-	width        float64
-	shortestDist float64
+	towns      []*Town
+	pheromones PheromoneTable
+	width      float64
+	antArray   []*Ant
 }
 
 //PheromoneTable is a matrix containing the pheromone trail intensity between every pair of towns
