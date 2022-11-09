@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-//main will run our optimization problem with varying sets of parameters
+// main will run our optimization problem with varying sets of parameters
 func main() {
 
 	//Below are the various parameters and initial values (all subject to change)
