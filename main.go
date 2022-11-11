@@ -16,18 +16,23 @@ func main() {
 	numCycles := 1000
 	width := 500
 
+	/*
+	//initialize map of towns with random x,y coordinate, width, and pheromone table
+	// I inputted the initial values which can be read from the command line 
+	initialMap := InitializeMap(initialTrail, numTowns, width)
+	*/
+
+
+
 	//initialize pheromone trail from number of towns and intitial intensity
 	initialTrail := InitializeTrail(numTowns, initialIntensity)
 
-	//
-
-	//initialize map of towns with random x,y coordinate, width, and pheromone table
-	initialMap := InitializeMap(initialTrail, numTowns, width)
+	
 
 	//Simulate AntColony
 	//Input: alpha, beta, rho, initialMap, numCycles
 	//Output: Array of Maps showing the best route after each cycle (only keeping an array for visualization purposes)
-	shortestMaps := AntColony(initialMap, alpha, beta, rho, numCycles, numAnts, Q)
+	shortestMaps := AntColony(initialMap, numCycles, numAnts)
 
 	//animate shortest maps
 	fmt.Println(shortestMaps)
