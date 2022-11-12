@@ -13,14 +13,14 @@ import (
 
 // removed alpha, beta, rho and Q from the input line so we can put as command line arguments
 
-func AntColony(initialMap Map, numCycles, numAnts int) []Map {
+func AntColony(initialMap Map, numCycles, numAnts int, alpha, beta, rho, Q float64) []Map {
 
 	// in this case each timePoint is after a complete ant cycle (visiting all the towns)
 	timePoints := make([]Map, numCycles)
 	timePoints[0] = initialMap
 
 	for i := 1; i <= numCycles; i++ {
-		timePoints[i] = UpdateMap(timePoints[i-1], numAnts)
+		timePoints[i] = UpdateMap(timePoints[i-1], numAnts, alpha, beta, rho, Q)
 	}
 
 	/*
@@ -33,33 +33,19 @@ func AntColony(initialMap Map, numCycles, numAnts int) []Map {
 	return timePoints
 }
 
-// need to make row and col
-func DistanceMatrix(initialMap Map) [][]float64 {
-	// set the rows and cols to be equal to numTowns
-	numRows := len(initialMap.towns)
-	numCols := len(initialMap.towns)
-	distMatrix := InitializeDistMatrix(numRows, numCols)
+//InitializeDistanceMatrix initializes a distance matrix for all pairs of towns in the map
+//Input: initial map to access towns
+//Output: 2x2 slice representing the dsitance between every pair of towns
+func InitializeDistanceMatrix(initialMap Map) [][]float64 {
 
-	// range over the towns
-	for i := range initialMap.towns {
-		// compare town[i] to town[j]
-		for j := range initialMap.towns {
-			// do not compare town distance to self since that will be zero anyways
-			if initialMap.towns[i] != initialMap.towns[j] {
-				distMatrix[i][j] = Distance(initialMap.towns[i].position, initialMap.towns[j].position)
-			}
+	//initialize distance matrix
+	distMatrix := make([][]float64, len(initialMap.towns))
+
+	for i := range distMatrix {
+		distMatrix[i] = make([]float64, len(initialMap.towns))
+		for j := range distMatrix[i] {
+			distMatrix[i][j] = Distance(initialMap.towns[i].position, initialMap.towns[j].position)
 		}
-	}
-	return distMatrix
-}
-
-// InitializeBoard takes a number of rows and columns as inputs and it returns a gameboard with an appropriate number of rows and columns, where all values = 0
-func InitializeDistMatrix(numRows, numCols int) [][]float64 {
-	// make a 2-D slice
-	distMatrix := make([][]float64, numRows)
-	// now we need to make the the rows (as in having the length of each row)
-	for r := range distMatrix {
-		distMatrix[r] = make([]float64, numCols)
 	}
 	return distMatrix
 }
