@@ -26,9 +26,9 @@ func main() {
 	//Simulate AntColony
 	//Input: alpha, beta, rho, initialMap, numCycles
 	//Output: Array of Maps showing the best route after each cycle (only keeping an array for visualization purposes)
-	shortestMaps := AntColony(initialMap, numCycles, numAnts, alpha, beta, rho, Q)
+	timePoints := AntColony(initialMap, numCycles, numAnts, alpha, beta, rho, Q)
 
 	//animate shortest maps
-	fmt.Println(shortestMaps)
+	fmt.Println(timePoints)
 
 }
