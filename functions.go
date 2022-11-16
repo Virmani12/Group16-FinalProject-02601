@@ -68,7 +68,7 @@ func UpdatePheromoneTable(currentMap Map, rho float64, Q float64) Map {
 				}
 			}
 			//Updating the trail intensity(totalTrail) once the ant has completed one cycle
-			//1-rho represents the evaporation of the trail
+			//1-rho represents the evaporation of pheromones from the trail
 			currentMap.pheromones[n][m].totalTrail += ((1 - rho) * currentMap.pheromones[n][m].totalTrail) + currentMap.pheromones[n][m].deltaTrail
 
 			//reset deltaTrail to zero
