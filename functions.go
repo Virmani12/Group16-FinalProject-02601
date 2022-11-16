@@ -47,6 +47,40 @@ func UpdateMap(currentMap Map, numAnts int, alpha, beta, rho, Q float64) Map {
 	return updatedPheromones
 }
 
+// UpdatePheromone Table takes the currentMap and two constants, rho and Q as input and updates the pheromone
+// table once the ants have completed one cycle and returns the currentMap with updated pheromone values.
+func UpdatePheromoneTable(currentMap Map, rho float64, Q float64) Map {
+	for n := 0; n < len(currentMap.pheromones); n++ {
+		for m := 0; m < len(currentMap.pheromones[n]); m++ {
+			for i := 0; i < len(currentMap.ants); i++ {
+				for j := 0; j < len(currentMap.ants[i].tabu); j++ {
+					a := currentMap.ants[i].tabu[j].label
+					b := currentMap.ants[i].tabu[(j + 1)].label
+
+					//checking to see if the matrix is symmetrical
+					if a == n && b == m {
+
+						// quantity per unit of length of trail substance
+						dtk := Q / currentMap.ants[i].totalDistance
+
+						currentMap.pheromones[n][m].deltaTrail += dtk
+					}
+				}
+			}
+			//Updating the trail intensity(totalTrail) once the ant has completed one cycle
+			//1-rho represents the evaporation of the trail
+			currentMap.pheromones[n][m].totalTrail += ((1 - rho) * currentMap.pheromones[n][m].totalTrail) + currentMap.pheromones[n][m].deltaTrail
+
+			//reset deltaTrail to zero
+			currentMap.pheromones[n][m].deltaTrail = 0
+
+		}
+	}
+
+	return currentMap
+}
+
+
 //UpdateAnts takes currentMap and updates the ants field so that they've all gone through the cycle once,
 //it returns a map that's the same as currentMap but with the new ants values
 func UpdateAnts(currentMap Map, alpha, beta float64) Map {
