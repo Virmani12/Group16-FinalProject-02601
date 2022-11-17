@@ -9,32 +9,26 @@ func main() {
 	alpha := 1.0
 	beta := 1.0
 	rho := 0.99
-	Q := 100
+	Q := 100.0
 	initialIntensity := 1.0 //should be scaled based on number of towns and Q
 	numTowns := 50
 	numAnts := 50
 	numCycles := 1000
-	width := 500
-
-	/*
-	//initialize map of towns with random x,y coordinate, width, and pheromone table
-	// I inputted the initial values which can be read from the command line 
-	initialMap := InitializeMap(initialTrail, numTowns, width)
-	*/
-
-
+	width := 500.0
 
 	//initialize pheromone trail from number of towns and intitial intensity
 	initialTrail := InitializeTrail(numTowns, initialIntensity)
 
-	
+	//initialize map of towns with random x,y coordinate, width, and pheromone table
+	// I inputted the initial values which can be read from the command line
+	initialMap := InitializeMap(initialTrail, numTowns, width)
 
 	//Simulate AntColony
 	//Input: alpha, beta, rho, initialMap, numCycles
 	//Output: Array of Maps showing the best route after each cycle (only keeping an array for visualization purposes)
-	shortestMaps := AntColony(initialMap, numCycles, numAnts)
+	timePoints := AntColony(initialMap, numCycles, numAnts, alpha, beta, rho, Q)
 
 	//animate shortest maps
-	fmt.Println(shortestMaps)
+	fmt.Println(timePoints)
 
 }

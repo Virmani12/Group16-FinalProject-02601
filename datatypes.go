@@ -5,7 +5,7 @@ package main
 // Lastly contains a float keeping track of the distance covered so far along the ant's tour
 type Ant struct {
 	tabu          []*Town
-	cur, next     Town
+	cur, next     *Town
 	totalDistance float64
 }
 
