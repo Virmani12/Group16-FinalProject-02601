@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+
 	"github.com/jmcvetta/randutil"
 	//"math/rand"
 	//"time"
@@ -34,15 +35,14 @@ func AntColony(initialMap Map, numCycles, numAnts int, alpha, beta, rho, Q float
 	return timePoints
 }
 
-//UpdateMap takes the current Map and system parameters and runs the simulation one time 
-//(all ants go to all cities once), returning currentMap with updated values
+// UpdateMap takes the current Map and system parameters and runs the simulation one time
+// (all ants go to all cities once), returning currentMap with updated values
 func UpdateMap(currentMap Map, numAnts int, alpha, beta, rho, Q float64) Map {
 	//need to move ants from town to town, storing in currentMap.ants
 	updatedAnts := UpdateAnts(currentMap, alpha, beta) //updatedAnts is the same as currentMap but with the ants field updated
-	
+
 	//need to update currentMap.pheromones based on the routes the ants took
-	updatedPheromones := UpdatePheromoneTable(updatedAnts) //updatedPheromones is the same as updatedAnts but with the pheromones field updated
-	
+	updatedPheromones := UpdatePheromoneTable(updatedAnts, rho, Q) //updatedPheromones is the same as updatedAnts but with the pheromones field updated
 
 	return updatedPheromones
 }
@@ -80,9 +80,8 @@ func UpdatePheromoneTable(currentMap Map, rho float64, Q float64) Map {
 	return currentMap
 }
 
-
-//UpdateAnts takes currentMap and updates the ants field so that they've all gone through the cycle once,
-//it returns a map that's the same as currentMap but with the new ants values
+// UpdateAnts takes currentMap and updates the ants field so that they've all gone through the cycle once,
+// it returns a map that's the same as currentMap but with the new ants values
 func UpdateAnts(currentMap Map, alpha, beta float64) Map {
 	//range through all ants and get what path each took to travel to each town
 	for antIndex := range currentMap.ants {
@@ -92,8 +91,8 @@ func UpdateAnts(currentMap Map, alpha, beta float64) Map {
 	return currentMap
 }
 
-//MoveAnt takes the current ant, the list of towns, the pheromone table, and system parameters and simulates one ant's 
-//journey across each town. It returns the updated ant object
+// MoveAnt takes the current ant, the list of towns, the pheromone table, and system parameters and simulates one ant's
+// journey across each town. It returns the updated ant object
 func MoveAnt(currentAnt *Ant, towns []*Town, pheromones PheromoneTable, alpha, beta float64) *Ant {
 	//set up loop so that ant keeps picking a next town until it's gone to every town
 	for len(currentAnt.tabu) < len(towns) {
@@ -110,23 +109,23 @@ func MoveAnt(currentAnt *Ant, towns []*Town, pheromones PheromoneTable, alpha, b
 		//move ant to next town
 		currentAnt.cur = currentAnt.next
 	}
-	
+
 	return currentAnt
 }
 
-//PickNextTown takes the pheromone table and system parameters to make a weighted probability decision about what town
-//to travel to next. Returns the town that will be next
+// PickNextTown takes the pheromone table and system parameters to make a weighted probability decision about what town
+// to travel to next. Returns the town that will be next
 func PickNextTown(currentTown *Town, towns []*Town, pheromones PheromoneTable, alpha, beta float64) *Town {
 	//use GitHub package randutil to do weighted random selection
 	choices := make([]randutil.Choice, len(towns)-1)
-	
+
 	//range through all possibilities of towns, excluding current town, and calc prob for each
 	for townIndex := range towns {
 		if currentTown.label != towns[townIndex].label {
 			choices[townIndex].Item = towns[townIndex].label
-			choices[townIndex].Weight = 1 //INSERT EQ FROM PAPER 
+			choices[townIndex].Weight = 1 //INSERT EQ FROM PAPER
 		}
-		
+
 	}
 
 	//now pick based on weighted random probability
@@ -140,7 +139,6 @@ func PickNextTown(currentTown *Town, towns []*Town, pheromones PheromoneTable, a
 
 	return nextTown
 }
-
 
 // Distance takes two position ordered pairs and it returns the distance between these two points in 2-D space.
 // This is used to calculate the distance between each town and all other towns, appending the value into a table

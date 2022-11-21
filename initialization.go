@@ -1,6 +1,6 @@
 package main
 
-import( 
+import (
 	"math/rand"
 	"time"
 )
@@ -33,7 +33,7 @@ func InitializeTrail(numTowns int, initialTrailIntensity float64) PheromoneTable
 func InitializeMap(initialTrail PheromoneTable, numTowns int, width float64) Map {
 	var initialMap Map
 	initialMap.towns = make([]*Town, numTowns)
-	// initialMap.pheromone = ??
+	initialMap.pheromones = initialTrail
 	initialMap.width = width
 
 	// range over the towns and create a random position within the map
@@ -43,13 +43,12 @@ func InitializeMap(initialTrail PheromoneTable, numTowns int, width float64) Map
 		initialMap.towns[i].position.y = rand.Float64() * initialMap.width
 	}
 
-	initialMap.pheromones = initialTrail
 	return initialMap
 }
 
-//InitializeDistanceMatrix initializes a distance matrix for all pairs of towns in the map
-//Input: initial map to access towns
-//Output: 2x2 slice representing the dsitance between every pair of towns
+// InitializeDistanceMatrix initializes a distance matrix for all pairs of towns in the map
+// Input: initial map to access towns
+// Output: 2x2 slice representing the dsitance between every pair of towns
 func InitializeDistanceMatrix(initialMap Map) [][]float64 {
 
 	//initialize distance matrix
@@ -70,6 +69,7 @@ func InitializeDistanceMatrix(initialMap Map) [][]float64 {
 func InitializeAnts(initialMap Map, numAnts int) []*Ant {
 	// create an array of ants
 	ants := make([]*Ant, numAnts)
+
 	// seed generator for rand.Intn
 	rand.Seed(time.Now().UnixNano())
 
@@ -79,6 +79,7 @@ func InitializeAnts(initialMap Map, numAnts int) []*Ant {
 		randTown := rand.Intn(len(initialMap.towns)) // spit out a number from 0 - #of towns noninclusive
 		ants[i].cur = initialMap.towns[randTown]
 		ants[i].tabu = append(ants[i].tabu, ants[i].cur)
+
 	}
 	return ants
 }
