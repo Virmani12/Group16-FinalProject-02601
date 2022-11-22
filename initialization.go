@@ -17,7 +17,18 @@ func InitializeTrail(numTowns int, initialTrailIntensity float64) PheromoneTable
 		initialTrail[i] = make([]*Trail, numTowns)
 		for j := range initialTrail[i] {
 			//set each edge to initialTrailIntensity
-			initialTrail[i][j].totalTrail = initialTrailIntensity
+			if i == j {
+				var curTrail Trail
+				curTrail.totalTrail = 0.0
+				curTrail.deltaTrail = 0.0
+				initialTrail[i][j] = &curTrail
+			} else {
+				var curTrail Trail
+				curTrail.totalTrail = initialTrailIntensity
+				curTrail.deltaTrail = 0.0
+				initialTrail[i][j] = &curTrail
+			}
+
 		}
 	}
 
@@ -38,9 +49,11 @@ func InitializeMap(initialTrail PheromoneTable, numTowns int, width float64) Map
 
 	// range over the towns and create a random position within the map
 	for i := range initialMap.towns {
-		initialMap.towns[i].label = i
-		initialMap.towns[i].position.x = rand.Float64() * initialMap.width
-		initialMap.towns[i].position.y = rand.Float64() * initialMap.width
+		var curTown Town
+		curTown.label = i
+		curTown.position.x = rand.Float64() * initialMap.width
+		curTown.position.y = rand.Float64() * initialMap.width
+		initialMap.towns[i] = &curTown
 	}
 
 	return initialMap
@@ -76,9 +89,12 @@ func InitializeAnts(initialMap Map, numAnts int) []*Ant {
 	// loop through total number of ants
 	for i := 0; i < numAnts; i++ {
 		// randomly assign a town as a current town of the ant
+
 		randTown := rand.Intn(len(initialMap.towns)) // spit out a number from 0 - #of towns noninclusive
-		ants[i].cur = initialMap.towns[randTown]
-		ants[i].tabu = append(ants[i].tabu, ants[i].cur)
+		var curAnt Ant
+		curAnt.cur = initialMap.towns[randTown]
+		curAnt.tabu = append(curAnt.tabu, curAnt.cur)
+		ants[i] = &curAnt
 
 	}
 	return ants

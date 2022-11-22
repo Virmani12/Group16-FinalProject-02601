@@ -24,12 +24,6 @@ func AntColony(initialMap Map, numCycles, numAnts int, alpha, beta, rho, Q float
 	for i := 1; i <= numCycles; i++ {
 		timePoints[i] = UpdateMap(timePoints[i-1], numAnts, alpha, beta, rho, Q)
 	}
-
-	/*
-		// I am confused on what the shortestMaps are supposed to give us, should we use timePoints to represent the updated map after each cycle?
-		var shortestMaps []Map
-	*/
-
 	//run subroutines from here
 
 	return timePoints
