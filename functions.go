@@ -63,7 +63,7 @@ func UpdatePheromoneTable(currentMap Map, rho float64, Q float64) Map {
 			}
 			//Updating the trail intensity(totalTrail) once the ant has completed one cycle
 			//1-rho represents the evaporation of pheromones from the trail
-			currentMap.pheromones[n][m].totalTrail += ((1 - rho) * currentMap.pheromones[n][m].totalTrail) + currentMap.pheromones[n][m].deltaTrail
+			currentMap.pheromones[n][m].totalTrail += (rho * currentMap.pheromones[n][m].totalTrail) + currentMap.pheromones[n][m].deltaTrail
 
 			//reset deltaTrail to zero
 			currentMap.pheromones[n][m].deltaTrail = 0
@@ -91,7 +91,8 @@ func MoveAnt(currentAnt *Ant, towns []*Town, pheromones PheromoneTable, alpha, b
 	//set up loop so that ant keeps picking a next town until it's gone to every town
 	for len(currentAnt.tabu) < len(towns) {
 		//ant has starting town, need to take weighted probability of all other towns and pick next town
-		currentAnt.next = PickNextTown(currentAnt.cur, towns, pheromones, alpha, beta)
+
+		currentAnt.next = PickNextTown(currentAnt, towns, pheromones, alpha, beta)
 
 		//calc dist from current town to next town and add to total distance
 		dist := Distance(currentAnt.cur.position, currentAnt.next.position)
@@ -109,15 +110,21 @@ func MoveAnt(currentAnt *Ant, towns []*Town, pheromones PheromoneTable, alpha, b
 
 // PickNextTown takes the pheromone table and system parameters to make a weighted probability decision about what town
 // to travel to next. Returns the town that will be next
-func PickNextTown(currentTown *Town, towns []*Town, pheromones PheromoneTable, alpha, beta float64) *Town {
+func PickNextTown(currentAnt *Ant, towns []*Town, pheromones PheromoneTable, alpha, beta float64) *Town {
 	//use GitHub package randutil to do weighted random selection
+	//TODO: Might have to change the weighted selection because it doesn't use probabilities
 	choices := make([]randutil.Choice, len(towns)-1)
 
 	//range through all possibilities of towns, excluding current town, and calc prob for each
 	for townIndex := range towns {
-		if currentTown.label != towns[townIndex].label {
+		if currentAnt.cur.label != towns[townIndex].label {
 			choices[townIndex].Item = towns[townIndex].label
-			choices[townIndex].Weight = 1 //INSERT EQ FROM PAPER
+			if InTabu(towns[townIndex], currentAnt.tabu) {
+				choices[townIndex].Weight = 1
+			} else {
+				choices[townIndex].Weight = int(math.Pow(pheromones[currentAnt.cur.label][towns[townIndex].label].totalTrail, alpha))
+			}
+
 		}
 
 	}
@@ -132,6 +139,18 @@ func PickNextTown(currentTown *Town, towns []*Town, pheromones PheromoneTable, a
 	nextTown := towns[choice.Item.(int)]
 
 	return nextTown
+}
+
+// This function checks if the current town being checked is in the current ant's tabu list
+// Input: current town and current ant's tabu list
+// Output: True if the town is already in the list, false if it isn't
+func InTabu(town *Town, currentAntTabu []*Town) bool {
+	for i := range currentAntTabu {
+		if currentAntTabu[i].label == town.label {
+			return true
+		}
+	}
+	return false
 }
 
 // Distance takes two position ordered pairs and it returns the distance between these two points in 2-D space.

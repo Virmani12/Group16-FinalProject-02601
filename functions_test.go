@@ -41,8 +41,6 @@ func TestInitializeAnts(t *testing.T) {
 	if len(outcome) != testMap.answer {
 		t.Errorf("Error. InitializeAnts results in array of length %d and real answer is %d", len(outcome), testMap.answer)
 	}
-
-	//fmt.Println("First ant located at town:", ant1_town, "\nFirst ant tabu:", ant1_tabu, "\nSecond ant located:", ant2_town, "\nSecond ant located:", ant2_tabu)
 }
 
 func TestInitializeDistanceMatrix(t *testing.T) {
@@ -203,3 +201,7 @@ func TestInitializeMap(t *testing.T) {
 	}
 
 }
+
+/* Write this function after PickNextTown is done
+func TestPickNextTown(t *testing.T)
+*/

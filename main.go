@@ -23,6 +23,8 @@ func main() {
 	// I inputted the initial values which can be read from the command line
 	initialMap := InitializeMap(initialTrail, numTowns, width)
 
+	initialMap.ants = InitializeAnts(initialMap, numAnts)
+
 	//Simulate AntColony
 	//Input: alpha, beta, rho, initialMap, numCycles
 	//Output: Array of Maps showing the best route after each cycle (only keeping an array for visualization purposes)
