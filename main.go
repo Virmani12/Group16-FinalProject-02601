@@ -23,7 +23,8 @@ func main() {
 	// I inputted the initial values which can be read from the command line
 	initialMap := InitializeMap(initialTrail, numTowns, width)
 
-	initialMap.ants = InitializeAnts(initialMap, numAnts)
+	//create distance matrix from initialMap based on town positions
+	initialMap.distanceMatrix = InitializeDistanceMatrix(initialMap)
 
 	//Simulate AntColony
 	//Input: alpha, beta, rho, initialMap, numCycles

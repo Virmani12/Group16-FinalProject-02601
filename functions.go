@@ -19,12 +19,22 @@ func AntColony(initialMap Map, numCycles, numAnts int, alpha, beta, rho, Q float
 
 	// in this case each timePoint is after a complete cycle for all ants (visiting all the towns)
 	timePoints := make([]Map, numCycles)
-	timePoints[0] = initialMap
 
-	for i := 1; i <= numCycles; i++ {
-		timePoints[i] = UpdateMap(timePoints[i-1], numAnts, alpha, beta, rho, Q)
+	//changed this because timePoint[0] would have just been the initialized map which would have caused issues with drawing
+	//now, if we're on the INITIAL map, we'll update the SAME INITIAL map to represent the first cycle being complete
+	//now, timePoints[0] = the result from the first cycle, timePoints[1] = the result from the second cycle
+	//When we draw, we'll take the initial map from main as the starting point, and then use timePoints to represent the completion of each cycle
+	//also this helps with shortestTour because now shortestTour[0] corresponds to the shortest tour from cycle[0]
+	for i := 0; i < numCycles; i++ {
+		if i == 0 {
+			timePoints[i] = UpdateMap(initialMap, numAnts, alpha, beta, rho, Q)
+
+		} else {
+
+			timePoints[i] = UpdateMap(timePoints[i-1], numAnts, alpha, beta, rho, Q)
+		}
+
 	}
-	//run subroutines from here
 
 	return timePoints
 }
@@ -32,8 +42,27 @@ func AntColony(initialMap Map, numCycles, numAnts int, alpha, beta, rho, Q float
 // UpdateMap takes the current Map and system parameters and runs the simulation one time
 // (all ants go to all cities once), returning currentMap with updated values
 func UpdateMap(currentMap Map, numAnts int, alpha, beta, rho, Q float64) Map {
+
+	//set updatedAnts to current map and initialize ants here (instead of main), this way we can reset the ants tabu list and initialize the new set of ants in one step
+	updatedAnts := currentMap
+	updatedAnts.ants = nil
+	updatedAnts.ants = InitializeAnts(updatedAnts, numAnts)
+
 	//need to move ants from town to town, storing in currentMap.ants
-	updatedAnts := UpdateAnts(currentMap, alpha, beta) //updatedAnts is the same as currentMap but with the ants field updated
+	for i := 0; i < len(updatedAnts.towns); i++ {
+
+		if i > len(currentMap.towns)-1 {
+			updatedAnts = UpdateAnts(updatedAnts, alpha, beta)
+		} else {
+			updatedAnts = ReturnTowns(updatedAnts)
+		}
+
+	}
+	//updatedAnts is the same as currentMap but with the ants field updated
+
+	//update the shortest tour found in this cycle
+	shortestTour := FindShortestTour(updatedAnts)
+	currentMap.shortestTours = append(currentMap.shortestTours, shortestTour)
 
 	//need to update currentMap.pheromones based on the routes the ants took
 	updatedPheromones := UpdatePheromoneTable(updatedAnts, rho, Q) //updatedPheromones is the same as updatedAnts but with the pheromones field updated
@@ -74,12 +103,51 @@ func UpdatePheromoneTable(currentMap Map, rho float64, Q float64) Map {
 	return currentMap
 }
 
+// on the last iteration of this cycle, this function is called and it closes the tour each ant took by moving it to the town it started at and updating the distance
+func ReturnTowns(currentMap Map) Map {
+
+	//for each ant, set their next town to their original town, caluclate the distance from cur to next, add it to their total distance, and set cur to the first town
+	for antIndex := range currentMap.ants {
+
+		currentMap.ants[antIndex].next = currentMap.ants[antIndex].tabu[0]
+
+		dist := Distance(currentMap.ants[antIndex].cur.position, currentMap.ants[antIndex].next.position)
+
+		currentMap.ants[antIndex].totalDistance += dist
+
+		currentMap.ants[antIndex].cur = currentMap.ants[antIndex].next
+	}
+
+	return currentMap
+}
+
+//this function finds the shortest tour in this cycle based on each ants total distance
+//also resets each ants tabu list
+func FindShortestTour(currentMap Map) []*Town {
+	//set shortest tour and distance to first tabu list
+	shortestTour := currentMap.ants[0].tabu
+	shortestDistance := currentMap.ants[0].totalDistance
+
+	// if other ants distances are shorter, update the shortest tour to their tabu list
+	for antIndex := 1; antIndex < len(currentMap.ants); antIndex++ {
+
+		if currentMap.ants[antIndex].totalDistance < shortestDistance {
+
+			shortestDistance = currentMap.ants[antIndex].totalDistance
+
+			shortestTour = currentMap.ants[antIndex].tabu
+		}
+	}
+
+	return shortestTour
+}
+
 // UpdateAnts takes currentMap and updates the ants field so that they've all gone through the cycle once,
 // it returns a map that's the same as currentMap but with the new ants values
 func UpdateAnts(currentMap Map, alpha, beta float64) Map {
 	//range through all ants and get what path each took to travel to each town
 	for antIndex := range currentMap.ants {
-		currentMap.ants[antIndex] = MoveAnt(currentMap.ants[antIndex], currentMap.towns, currentMap.pheromones, alpha, beta)
+		currentMap.ants[antIndex] = MoveAnt(currentMap.ants[antIndex], currentMap, alpha, beta)
 	}
 
 	return currentMap
@@ -87,42 +155,45 @@ func UpdateAnts(currentMap Map, alpha, beta float64) Map {
 
 // MoveAnt takes the current ant, the list of towns, the pheromone table, and system parameters and simulates one ant's
 // journey across each town. It returns the updated ant object
-func MoveAnt(currentAnt *Ant, towns []*Town, pheromones PheromoneTable, alpha, beta float64) *Ant {
+func MoveAnt(currentAnt *Ant, currentMap Map, alpha, beta float64) *Ant {
 	//set up loop so that ant keeps picking a next town until it's gone to every town
-	for len(currentAnt.tabu) < len(towns) {
-		//ant has starting town, need to take weighted probability of all other towns and pick next town
 
-		currentAnt.next = PickNextTown(currentAnt, towns, pheromones, alpha, beta)
+	//ant has starting town, need to take weighted probability of all other towns and pick next town
 
-		//calc dist from current town to next town and add to total distance
-		dist := Distance(currentAnt.cur.position, currentAnt.next.position)
-		currentAnt.totalDistance += dist
+	currentAnt.next = PickNextTown(currentAnt, currentMap, alpha, beta)
 
-		//now add that town to tabu list
-		currentAnt.tabu = append(currentAnt.tabu, currentAnt.cur)
+	//calc dist from current town to next town and add to total distance
+	dist := Distance(currentAnt.cur.position, currentAnt.next.position)
+	currentAnt.totalDistance += dist
 
-		//move ant to next town
-		currentAnt.cur = currentAnt.next
-	}
+	//move ant to next town
+	currentAnt.cur = currentAnt.next
+
+	//now add that town to tabu list
+	currentAnt.tabu = append(currentAnt.tabu, currentAnt.cur)
 
 	return currentAnt
 }
 
 // PickNextTown takes the pheromone table and system parameters to make a weighted probability decision about what town
 // to travel to next. Returns the town that will be next
-func PickNextTown(currentAnt *Ant, towns []*Town, pheromones PheromoneTable, alpha, beta float64) *Town {
+func PickNextTown(currentAnt *Ant, currentMap Map, alpha, beta float64) *Town {
 	//use GitHub package randutil to do weighted random selection
 	//TODO: Might have to change the weighted selection because it doesn't use probabilities
-	choices := make([]randutil.Choice, len(towns)-1)
+	choices := make([]randutil.Choice, len(currentMap.towns)-1)
+
+	totalProbability := CalculateTotalProb(currentAnt, currentMap, alpha, beta)
 
 	//range through all possibilities of towns, excluding current town, and calc prob for each
-	for townIndex := range towns {
-		if currentAnt.cur.label != towns[townIndex].label {
-			choices[townIndex].Item = towns[townIndex].label
-			if InTabu(towns[townIndex], currentAnt.tabu) {
-				choices[townIndex].Weight = 1
+	for townIndex := range currentMap.towns {
+		if currentAnt.cur.label != currentMap.towns[townIndex].label {
+			choices[townIndex].Item = currentMap.towns[townIndex].label
+			if InTabu(currentMap.towns[townIndex], currentAnt.tabu) {
+				choices[townIndex].Weight = 0
 			} else {
-				choices[townIndex].Weight = int(math.Pow(pheromones[currentAnt.cur.label][towns[townIndex].label].totalTrail, alpha))
+				trailProb := math.Pow(currentMap.pheromones[currentAnt.cur.label][currentMap.towns[townIndex].label].totalTrail, alpha)
+				distProb := math.Pow(currentMap.distanceMatrix[currentAnt.cur.label][currentMap.towns[townIndex].label], beta)
+				choices[townIndex].Weight = int(100 * ((trailProb * distProb) / totalProbability))
 			}
 
 		}
@@ -136,9 +207,29 @@ func PickNextTown(currentAnt *Ant, towns []*Town, pheromones PheromoneTable, alp
 	}
 
 	//take item from choice and determine town it corresponds to
-	nextTown := towns[choice.Item.(int)]
+	nextTown := currentMap.towns[choice.Item.(int)]
 
 	return nextTown
+}
+
+//this function calculates the sum of all transition probabilites from the current ant to the towns that aren't in the current ant's tabu list
+func CalculateTotalProb(currentAnt *Ant, currentMap Map, alpha, beta float64) float64 {
+
+	totalProb := 0.0
+
+	for townIndex := range currentMap.towns {
+		if currentAnt.cur.label != currentMap.towns[townIndex].label {
+			if InTabu(currentMap.towns[townIndex], currentAnt.tabu) == false {
+				trailProb := math.Pow(currentMap.pheromones[currentAnt.cur.label][currentMap.towns[townIndex].label].totalTrail, alpha)
+				distProb := math.Pow(currentMap.distanceMatrix[currentAnt.cur.label][currentMap.towns[townIndex].label], beta)
+				totalProb += (trailProb * distProb)
+			}
+
+		}
+
+	}
+	return totalProb
+
 }
 
 // This function checks if the current town being checked is in the current ant's tabu list

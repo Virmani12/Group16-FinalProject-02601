@@ -27,10 +27,12 @@ type Trail struct {
 // Map contains all the towns, the width of the map, the pheromone trail between every pair of towns, and the shortest distance found
 // Used for visual representation
 type Map struct {
-	towns      []*Town
-	pheromones PheromoneTable
-	width      float64
-	ants       []*Ant
+	towns          []*Town
+	pheromones     PheromoneTable
+	width          float64
+	ants           []*Ant
+	distanceMatrix [][]float64
+	shortestTours  [][]*Town //cycle 1's shortest tour is shortestTours[0]
 }
 
 // PheromoneTable is a matrix containing the pheromone trail intensity between every pair of towns
