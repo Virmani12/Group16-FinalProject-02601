@@ -192,25 +192,13 @@ func PickNextTown(currentAnt *Ant, currentMap Map, alpha, beta float64) *Town {
 				choices[townIndex].Weight = 0
 			} else {
 				trailProb := math.Pow(currentMap.pheromones[currentAnt.cur.label][currentMap.towns[townIndex].label].totalTrail, alpha)
-				distProb := math.Pow(currentMap.distanceMatrix[currentAnt.cur.label][currentMap.towns[townIndex].label], beta)
+				distProb := math.Pow(1/(currentMap.distanceMatrix[currentAnt.cur.label][currentMap.towns[townIndex].label]), beta)
 				choices[townIndex].Weight = int(100 * ((trailProb * distProb) / totalProbability))
 			}
 
 		}
 
 	}
-
-	//now pick based on weighted random probability
-	choice, err := randutil.WeightedChoice(choices)
-	if err != nil {
-		panic(err)
-	}
-
-	//take item from choice and determine town it corresponds to
-	nextTown := currentMap.towns[choice.Item.(int)]
-
-	return nextTown
-}
 
 //this function calculates the sum of all transition probabilites from the current ant to the towns that aren't in the current ant's tabu list
 func CalculateTotalProb(currentAnt *Ant, currentMap Map, alpha, beta float64) float64 {
