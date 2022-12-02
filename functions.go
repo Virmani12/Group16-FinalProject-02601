@@ -111,7 +111,7 @@ func ReturnTowns(currentMap Map) Map {
 
 		currentMap.ants[antIndex].next = currentMap.ants[antIndex].tabu[0]
 
-		dist := Distance(currentMap.ants[antIndex].cur.position, currentMap.ants[antIndex].next.position)
+		dist := currentMap.distanceMatrix[currentMap.ants[antIndex].cur.label][currentMap.ants[antIndex].next.label]
 
 		currentMap.ants[antIndex].totalDistance += dist
 
@@ -163,7 +163,7 @@ func MoveAnt(currentAnt *Ant, currentMap Map, alpha, beta float64) *Ant {
 	currentAnt.next = PickNextTown(currentAnt, currentMap, alpha, beta)
 
 	//calc dist from current town to next town and add to total distance
-	dist := Distance(currentAnt.cur.position, currentAnt.next.position)
+	dist := currentMap.distanceMatrix[currentAnt.cur.label][currentAnt.next.label]
 	currentAnt.totalDistance += dist
 
 	//move ant to next town
@@ -179,7 +179,6 @@ func MoveAnt(currentAnt *Ant, currentMap Map, alpha, beta float64) *Ant {
 // to travel to next. Returns the town that will be next
 func PickNextTown(currentAnt *Ant, currentMap Map, alpha, beta float64) *Town {
 	//use GitHub package randutil to do weighted random selection
-	//TODO: Might have to change the weighted selection because it doesn't use probabilities
 	choices := make([]randutil.Choice, len(currentMap.towns)-1)
 
 	totalProbability := CalculateTotalProb(currentAnt, currentMap, alpha, beta)
@@ -192,7 +191,7 @@ func PickNextTown(currentAnt *Ant, currentMap Map, alpha, beta float64) *Town {
 				choices[townIndex].Weight = 0
 			} else {
 				trailProb := math.Pow(currentMap.pheromones[currentAnt.cur.label][currentMap.towns[townIndex].label].totalTrail, alpha)
-				distProb := math.Pow(1/(currentMap.distanceMatrix[currentAnt.cur.label][currentMap.towns[townIndex].label]), beta)
+				distProb := math.Pow(1 / (currentMap.distanceMatrix[currentAnt.cur.label][currentMap.towns[townIndex].label]), beta)
 				choices[townIndex].Weight = int(100 * ((trailProb * distProb) / totalProbability))
 			}
 
@@ -221,7 +220,7 @@ func CalculateTotalProb(currentAnt *Ant, currentMap Map, alpha, beta float64) fl
 		if currentAnt.cur.label != currentMap.towns[townIndex].label {
 			if InTabu(currentMap.towns[townIndex], currentAnt.tabu) == false {
 				trailProb := math.Pow(currentMap.pheromones[currentAnt.cur.label][currentMap.towns[townIndex].label].totalTrail, alpha)
-				distProb := math.Pow(currentMap.distanceMatrix[currentAnt.cur.label][currentMap.towns[townIndex].label], beta)
+				distProb := math.Pow(1 / (currentMap.distanceMatrix[currentAnt.cur.label][currentMap.towns[townIndex].label]), beta)
 				totalProb += (trailProb * distProb)
 			}
 
@@ -244,11 +243,4 @@ func InTabu(town *Town, currentAntTabu []*Town) bool {
 	return false
 }
 
-// Distance takes two position ordered pairs and it returns the distance between these two points in 2-D space.
-// This is used to calculate the distance between each town and all other towns, appending the value into a table
-func Distance(p1, p2 OrderedPair) float64 {
-	// this is the distance formula from days of precalculus long ago ...
-	deltaX := p1.x - p2.x
-	deltaY := p1.y - p2.y
-	return math.Sqrt(deltaX*deltaX + deltaY*deltaY)
-}
+

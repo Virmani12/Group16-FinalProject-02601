@@ -3,6 +3,7 @@ package main
 import (
 	"math/rand"
 	"time"
+	"math"
 )
 
 // InitializeTrail creates a 2x2 table representing the pheromone intensity at every "edge" between  pairs of towns in our simulation
@@ -61,7 +62,7 @@ func InitializeMap(initialTrail PheromoneTable, numTowns int, width float64) Map
 
 // InitializeDistanceMatrix initializes a distance matrix for all pairs of towns in the map
 // Input: initial map to access towns
-// Output: 2x2 slice representing the dsitance between every pair of towns
+// Output: 2x2 slice representing the distance between every pair of towns
 func InitializeDistanceMatrix(initialMap Map) [][]float64 {
 
 	//initialize distance matrix
@@ -98,4 +99,13 @@ func InitializeAnts(initialMap Map, numAnts int) []*Ant {
 
 	}
 	return ants
+}
+
+// Distance takes two position ordered pairs and it returns the distance between these two points in 2-D space.
+// This is used to calculate the distance between each town and all other towns, appending the value into a table
+func Distance(p1, p2 OrderedPair) float64 {
+	// this is the distance formula from days of precalculus long ago ...
+	deltaX := p1.x - p2.x
+	deltaY := p1.y - p2.y
+	return math.Sqrt(deltaX*deltaX + deltaY*deltaY)
 }

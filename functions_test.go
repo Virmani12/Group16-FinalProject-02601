@@ -2,6 +2,7 @@ package main
 
 import (
 	"testing"
+	"fmt"
 )
 
 // Testing functions here
@@ -202,6 +203,57 @@ func TestInitializeMap(t *testing.T) {
 
 }
 
-/* Write this function after PickNextTown is done
-func TestPickNextTown(t *testing.T)
-*/
+// Write this function after PickNextTown is done
+func TestPickNextTown(t *testing.T) {
+	alpha := 1.
+	beta := 1.
+
+	//need to initialize a pheromone table, list of towns, distance matrix, and list of ants
+	numTowns := 4
+	initialPheromone := 1.
+	numAnts := 10
+	width := 20.
+	testPheromoneTable := InitializeTrail(numTowns, initialPheromone)
+	currentMap := InitializeMap(testPheromoneTable, numTowns, width)
+	currentMap.distanceMatrix = InitializeDistanceMatrix(currentMap)
+	currentMap.ants = InitializeAnts(currentMap, numAnts)
+
+	//can modify pheromone table to have different values if wanted
+
+
+	//now call PickNextTown 
+	//need to decide what to test/evaluate to determine if working correctly
+	//maybe run multiple times and look at probability it chooses each next town for an ant
+	
+	//get list of where each ant would go next
+	nextTownList := make([]int, numAnts)
+	numCycles := 20
+	for cycleNum := 0; cycleNum < numCycles; cycleNum++ {
+		nextTown := PickNextTown(currentMap.ants[0], currentMap, alpha, beta)
+		nextTownList[cycleNum] = nextTown.label
+	}
+
+	//now calc experimental prob of choosing each town
+	townCounterList := make([]int, numTowns)  //list where each index corresponds to a town label; values are the number of times that town was picked
+	for _, val := range nextTownList {
+		for i := range townCounterList {
+			if val == i {
+				townCounterList[i]++
+			}
+		}
+	}
+	
+	//now turn counts into prob of picking each town
+	townProbList := make([]float64, numTowns)
+	for townIndex,count := range townCounterList {
+		townProbList[townIndex] = float64(count / numCycles)
+	}
+
+	fmt.Println(townProbList)
+
+	//would need to get currentMap.ants[0].cur so can do probability calc by hand and verify probabilities of choosing towns are correct
+	//not sure if there'd be a way to have Go do this or make a test set b/c ant location and town position are randomized
+
+
+}
+
