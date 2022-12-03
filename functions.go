@@ -82,7 +82,7 @@ func UpdatePheromoneTable(currentMap Map, rho float64, Q float64) Map {
 						b := currentMap.ants[i].tabu[(j + 1)].label
 
 						//checking to see if the matrix is symmetrical
-						if (a == n && b == m) || (a == m && b == n) {
+						if a == n && b == m {
 
 							// quantity per unit of length of trail substance
 							dtk := Q / currentMap.ants[i].totalDistance
@@ -106,8 +106,10 @@ func UpdatePheromoneTable(currentMap Map, rho float64, Q float64) Map {
 				//reset deltaTrail to zero
 				currentMap.pheromones[n][m].deltaTrail = 0
 			}
+			//fmt.Print(currentMap.pheromones[n][m].totalTrail, " ")
 
 		}
+		//fmt.Println("")
 	}
 
 	return currentMap
@@ -201,7 +203,9 @@ func PickNextTown(currentAnt *Ant, currentMap Map, alpha, beta float64) *Town {
 			} else {
 				trailProb := math.Pow(currentMap.pheromones[currentAnt.cur.label][currentMap.towns[townIndex].label].totalTrail, alpha)
 				distProb := math.Pow(1/(currentMap.distanceMatrix[currentAnt.cur.label][currentMap.towns[townIndex].label]), beta)
+				//fmt.Println(trailProb * distProb)
 				choices[townIndex].Weight = int(100 * ((trailProb * distProb) / totalProbability))
+				//fmt.Println(int(100 * ((trailProb * distProb) / totalProbability)))
 			}
 
 		} else {
@@ -239,6 +243,7 @@ func CalculateTotalProb(currentAnt *Ant, currentMap Map, alpha, beta float64) fl
 		}
 
 	}
+	//fmt.Println(totalProb)
 	return totalProb
 
 }
