@@ -1,8 +1,8 @@
 package main
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 // Testing functions here
@@ -220,11 +220,10 @@ func TestPickNextTown(t *testing.T) {
 
 	//can modify pheromone table to have different values if wanted
 
-
-	//now call PickNextTown 
+	//now call PickNextTown
 	//need to decide what to test/evaluate to determine if working correctly
 	//maybe run multiple times and look at probability it chooses each next town for an ant
-	
+
 	//get list of where each ant would go next
 	nextTownList := make([]int, numAnts)
 	numCycles := 20
@@ -234,7 +233,7 @@ func TestPickNextTown(t *testing.T) {
 	}
 
 	//now calc experimental prob of choosing each town
-	townCounterList := make([]int, numTowns)  //list where each index corresponds to a town label; values are the number of times that town was picked
+	townCounterList := make([]int, numTowns) //list where each index corresponds to a town label; values are the number of times that town was picked
 	for _, val := range nextTownList {
 		for i := range townCounterList {
 			if val == i {
@@ -242,10 +241,10 @@ func TestPickNextTown(t *testing.T) {
 			}
 		}
 	}
-	
+
 	//now turn counts into prob of picking each town
 	townProbList := make([]float64, numTowns)
-	for townIndex,count := range townCounterList {
+	for townIndex, count := range townCounterList {
 		townProbList[townIndex] = float64(count / numCycles)
 	}
 
@@ -254,6 +253,4 @@ func TestPickNextTown(t *testing.T) {
 	//would need to get currentMap.ants[0].cur so can do probability calc by hand and verify probabilities of choosing towns are correct
 	//not sure if there'd be a way to have Go do this or make a test set b/c ant location and town position are randomized
 
-
 }
-
