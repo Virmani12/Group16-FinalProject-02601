@@ -7,7 +7,7 @@ func main() {
 
 	//Below are the various parameters and initial values (all subject to change)
 	alpha := 1.0
-	beta := 1.0
+	beta := 5.0
 	rho := 0.99
 	Q := 100.0
 	initialIntensity := 1.0 //should be scaled based on number of towns and Q

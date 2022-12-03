@@ -51,7 +51,7 @@ func UpdateMap(currentMap Map, numAnts int, alpha, beta, rho, Q float64) Map {
 	//need to move ants from town to town, storing in currentMap.ants
 	for i := 0; i < len(updatedAnts.towns); i++ {
 
-		if i > len(currentMap.towns)-1 {
+		if i < len(currentMap.towns)-1 {
 			updatedAnts = UpdateAnts(updatedAnts, alpha, beta)
 		} else {
 			updatedAnts = ReturnTowns(updatedAnts)
@@ -65,9 +65,9 @@ func UpdateMap(currentMap Map, numAnts int, alpha, beta, rho, Q float64) Map {
 	currentMap.shortestTours = append(currentMap.shortestTours, shortestTour)
 
 	//need to update currentMap.pheromones based on the routes the ants took
-	updatedPheromones := UpdatePheromoneTable(updatedAnts, rho, Q) //updatedPheromones is the same as updatedAnts but with the pheromones field updated
+	updatedAnts = UpdatePheromoneTable(updatedAnts, rho, Q) //updatedPheromones is the same as updatedAnts but with the pheromones field updated
 
-	return updatedPheromones
+	return updatedAnts
 }
 
 // UpdatePheromone Table takes the currentMap and two constants, rho and Q as input and updates the pheromone
@@ -75,27 +75,37 @@ func UpdateMap(currentMap Map, numAnts int, alpha, beta, rho, Q float64) Map {
 func UpdatePheromoneTable(currentMap Map, rho float64, Q float64) Map {
 	for n := 0; n < len(currentMap.pheromones); n++ {
 		for m := 0; m < len(currentMap.pheromones[n]); m++ {
-			for i := 0; i < len(currentMap.ants); i++ {
-				for j := 0; j < len(currentMap.ants[i].tabu); j++ {
-					a := currentMap.ants[i].tabu[j].label
-					b := currentMap.ants[i].tabu[(j + 1)].label
+			if m != n {
+				for i := 0; i < len(currentMap.ants); i++ {
+					for j := 0; j < len(currentMap.ants[i].tabu)-1; j++ {
+						a := currentMap.ants[i].tabu[j].label
+						b := currentMap.ants[i].tabu[(j + 1)].label
 
-					//checking to see if the matrix is symmetrical
-					if a == n && b == m {
+						//checking to see if the matrix is symmetrical
+						if (a == n && b == m) || (a == m && b == n) {
 
-						// quantity per unit of length of trail substance
-						dtk := Q / currentMap.ants[i].totalDistance
+							// quantity per unit of length of trail substance
+							dtk := Q / currentMap.ants[i].totalDistance
 
-						currentMap.pheromones[n][m].deltaTrail += dtk
+							currentMap.pheromones[n][m].deltaTrail += dtk
+						}
 					}
 				}
 			}
-			//Updating the trail intensity(totalTrail) once the ant has completed one cycle
-			//1-rho represents the evaporation of pheromones from the trail
-			currentMap.pheromones[n][m].totalTrail += (rho * currentMap.pheromones[n][m].totalTrail) + currentMap.pheromones[n][m].deltaTrail
 
-			//reset deltaTrail to zero
-			currentMap.pheromones[n][m].deltaTrail = 0
+		}
+	}
+
+	for n := 0; n < len(currentMap.pheromones); n++ {
+		for m := 0; m < len(currentMap.pheromones[n]); m++ {
+			if m != n {
+				//Updating the trail intensity(totalTrail) once the ant has completed one cycle
+				//1-rho represents the evaporation of pheromones from the trail
+				currentMap.pheromones[n][m].totalTrail += (rho * currentMap.pheromones[n][m].totalTrail) + currentMap.pheromones[n][m].deltaTrail
+
+				//reset deltaTrail to zero
+				currentMap.pheromones[n][m].deltaTrail = 0
+			}
 
 		}
 	}
@@ -122,7 +132,6 @@ func ReturnTowns(currentMap Map) Map {
 }
 
 //this function finds the shortest tour in this cycle based on each ants total distance
-//also resets each ants tabu list
 func FindShortestTour(currentMap Map) []*Town {
 	//set shortest tour and distance to first tabu list
 	shortestTour := currentMap.ants[0].tabu
@@ -142,7 +151,7 @@ func FindShortestTour(currentMap Map) []*Town {
 	return shortestTour
 }
 
-// UpdateAnts takes currentMap and updates the ants field so that they've all gone through the cycle once,
+// UpdateAnts takes currentMap and updates the ants field after moving to one more town
 // it returns a map that's the same as currentMap but with the new ants values
 func UpdateAnts(currentMap Map, alpha, beta float64) Map {
 	//range through all ants and get what path each took to travel to each town
@@ -179,7 +188,7 @@ func MoveAnt(currentAnt *Ant, currentMap Map, alpha, beta float64) *Ant {
 // to travel to next. Returns the town that will be next
 func PickNextTown(currentAnt *Ant, currentMap Map, alpha, beta float64) *Town {
 	//use GitHub package randutil to do weighted random selection
-	choices := make([]randutil.Choice, len(currentMap.towns)-1)
+	choices := make([]randutil.Choice, len(currentMap.towns))
 
 	totalProbability := CalculateTotalProb(currentAnt, currentMap, alpha, beta)
 
@@ -191,10 +200,13 @@ func PickNextTown(currentAnt *Ant, currentMap Map, alpha, beta float64) *Town {
 				choices[townIndex].Weight = 0
 			} else {
 				trailProb := math.Pow(currentMap.pheromones[currentAnt.cur.label][currentMap.towns[townIndex].label].totalTrail, alpha)
-				distProb := math.Pow(1 / (currentMap.distanceMatrix[currentAnt.cur.label][currentMap.towns[townIndex].label]), beta)
+				distProb := math.Pow(1/(currentMap.distanceMatrix[currentAnt.cur.label][currentMap.towns[townIndex].label]), beta)
 				choices[townIndex].Weight = int(100 * ((trailProb * distProb) / totalProbability))
 			}
 
+		} else {
+			choices[townIndex].Item = currentMap.towns[townIndex].label
+			choices[townIndex].Weight = 0
 		}
 
 	}
@@ -220,7 +232,7 @@ func CalculateTotalProb(currentAnt *Ant, currentMap Map, alpha, beta float64) fl
 		if currentAnt.cur.label != currentMap.towns[townIndex].label {
 			if InTabu(currentMap.towns[townIndex], currentAnt.tabu) == false {
 				trailProb := math.Pow(currentMap.pheromones[currentAnt.cur.label][currentMap.towns[townIndex].label].totalTrail, alpha)
-				distProb := math.Pow(1 / (currentMap.distanceMatrix[currentAnt.cur.label][currentMap.towns[townIndex].label]), beta)
+				distProb := math.Pow(1/(currentMap.distanceMatrix[currentAnt.cur.label][currentMap.towns[townIndex].label]), beta)
 				totalProb += (trailProb * distProb)
 			}
 
@@ -242,5 +254,3 @@ func InTabu(town *Town, currentAntTabu []*Town) bool {
 	}
 	return false
 }
-
-

@@ -1,9 +1,9 @@
 package main
 
 import (
+	"math"
 	"math/rand"
 	"time"
-	"math"
 )
 
 // InitializeTrail creates a 2x2 table representing the pheromone intensity at every "edge" between  pairs of towns in our simulation
@@ -95,6 +95,7 @@ func InitializeAnts(initialMap Map, numAnts int) []*Ant {
 		var curAnt Ant
 		curAnt.cur = initialMap.towns[randTown]
 		curAnt.tabu = append(curAnt.tabu, curAnt.cur)
+		curAnt.totalDistance = 0.0
 		ants[i] = &curAnt
 
 	}
