@@ -49,11 +49,51 @@ func InitializeMap(initialTrail PheromoneTable, numTowns int, width float64) Map
 	initialMap.width = width
 
 	// range over the towns and create a random position within the map
-	for i := range initialMap.towns {
+	/*for i := range initialMap.towns {
 		var curTown Town
 		curTown.label = i
 		curTown.position.x = rand.Float64() * initialMap.width
 		curTown.position.y = rand.Float64() * initialMap.width
+		initialMap.towns[i] = &curTown
+	}*/
+
+	oliver := [][]int{
+		{54, 67},
+		{54, 62},
+		{37, 84},
+		{41, 94},
+		{2, 99},
+		{7, 64},
+		{25, 62},
+		{22, 60},
+		{18, 54},
+		{4, 50},
+		{13, 40},
+		{18, 40},
+		{24, 42},
+		{25, 38},
+		{44, 35},
+		{41, 26},
+		{45, 21},
+		{58, 35},
+		{62, 32},
+		{82, 7},
+		{91, 38},
+		{83, 46},
+		{71, 44},
+		{64, 60},
+		{68, 58},
+		{83, 69},
+		{87, 76},
+		{74, 78},
+		{71, 71},
+		{58, 69}}
+
+	for i := 0; i < 30; i++ {
+		var curTown Town
+		curTown.label = i
+		curTown.position.x = float64(oliver[i][0] * 5.0)
+		curTown.position.y = float64(oliver[i][1] * 5.0)
 		initialMap.towns[i] = &curTown
 	}
 

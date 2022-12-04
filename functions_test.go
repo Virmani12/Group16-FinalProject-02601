@@ -273,7 +273,7 @@ func TestUpdatePheromoneTable(t *testing.T) {
 	testMap.answer.pheromones = InitializeTrail(testMap.numTowns, initialTrailIntensity)
 
 	// panic out of range issue below, but why?
-	
+
 	testMap.answer.towns = make([]*Town, 3)
 
 	var town1, town2, town3 Town
@@ -297,13 +297,13 @@ func TestUpdatePheromoneTable(t *testing.T) {
 
 	var ant1, ant2, ant3 Ant
 
-	for i := 0 ; i <= 3; i ++ {
+	for i := 0; i <= 3; i++ {
 		testMap.answer.ants[i].tabu = make([]*Town, 3)
 	}
 
-	ant1.tabu = make([]*Town,3)
-	ant2.tabu = make([]*Town,3)
-	ant3.tabu = make([]*Town,3)
+	ant1.tabu = make([]*Town, 3)
+	ant2.tabu = make([]*Town, 3)
+	ant3.tabu = make([]*Town, 3)
 
 	ant1.tabu[0] = &town1
 	ant1.tabu[1] = &town2
@@ -326,17 +326,15 @@ func TestUpdatePheromoneTable(t *testing.T) {
 	ant3.totalDistance = 92.06
 	testMap.answer.ants[2] = &ant3
 
-
-
 	rho := 5.0
 	Q := 50.0
 	// Q/L = 0.5431
 	// since rho = 0.5, then the trail intensity will be half of what it was (in this case 0.5)
 	// then add 0.5431, which will have an overall addition of 0.0431
 	// at the end of this single trial run, the pheromone table should read a 1.0431 for each trail since this ant travelled each route
-	
-	outcome := UpdatePheromoneTable(testMap.answer,rho, Q )
-	
+
+	outcome := UpdatePheromoneTable(testMap.answer, rho, Q)
+
 	fmt.Println(outcome.pheromones)
 
 }

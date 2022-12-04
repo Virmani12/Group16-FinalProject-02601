@@ -10,14 +10,14 @@ func main() {
 
 	//Below are the various parameters and initial values (all subject to change)
 	alpha := 1.0
-	beta := 1.0
+	beta := 5.0
 	rho := 0.50
 	Q := 50.0
-	initialIntensity := 1.0 //should be scaled based on number of towns and Q
-	numTowns := 50
-	numAnts := 50
-	numCycles := 1000
-	width := 5000.0
+	initialIntensity := 0.01 //should be scaled based on number of towns and Q
+	numTowns := 30
+	numAnts := 30
+	numCycles := 100
+	width := 500.0
 
 	//initialize pheromone trail from number of towns and intitial intensity
 	initialTrail := InitializeTrail(numTowns, initialIntensity)
@@ -33,6 +33,14 @@ func main() {
 	//Input: alpha, beta, rho, initialMap, numCycles
 	//Output: Array of Maps showing the best route after each cycle (only keeping an array for visualization purposes)
 	timePoints := AntColony(initialMap, numCycles, numAnts, alpha, beta, rho, Q)
+
+	avgDist := CalculateAvgDist(timePoints, numCycles)
+	fmt.Println("average dist: ", avgDist)
+
+	lastTourLength := ComputeDistance(timePoints[numCycles-1], timePoints[numCycles-1].shortestTours[numCycles-1])
+	fmt.Println("last tour distance: ", lastTourLength)
+
+	PrintTour(timePoints[numCycles-1].shortestTours[numCycles-1])
 
 	imageList := AnimateSystem(timePoints, int(width))
 
