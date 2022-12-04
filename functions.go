@@ -145,7 +145,7 @@ func ReturnTowns(currentMap Map) Map {
 	return currentMap
 }
 
-//this function finds the shortest tour in this cycle based on each ants total distance
+// this function finds the shortest tour in this cycle based on each ants total distance
 func FindShortestTour(currentMap Map) []*Town {
 	//set shortest tour and distance to first tabu list
 	shortestTour := currentMap.ants[0].tabu
@@ -239,7 +239,7 @@ func PickNextTown(currentAnt *Ant, currentMap Map, alpha, beta float64) *Town {
 	return nextTown
 }
 
-//this function calculates the sum of all transition probabilites from the current ant to the towns that aren't in the current ant's tabu list
+// this function calculates the sum of all transition probabilites from the current ant to the towns that aren't in the current ant's tabu list
 func CalculateTotalProb(currentAnt *Ant, currentMap Map, alpha, beta float64) float64 {
 
 	totalProb := 0.0
