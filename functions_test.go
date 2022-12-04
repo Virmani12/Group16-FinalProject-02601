@@ -297,10 +297,6 @@ func TestUpdatePheromoneTable(t *testing.T) {
 
 	var ant1, ant2, ant3 Ant
 
-	for i := 0; i <= 3; i++ {
-		testMap.answer.ants[i].tabu = make([]*Town, 3)
-	}
-
 	ant1.tabu = make([]*Town, 3)
 	ant2.tabu = make([]*Town, 3)
 	ant3.tabu = make([]*Town, 3)
@@ -309,7 +305,7 @@ func TestUpdatePheromoneTable(t *testing.T) {
 	ant1.tabu[1] = &town2
 	ant1.tabu[2] = &town3
 	// wait Adonis, total distance would be 20+30+approx36.06 for each ant because there are only 3 options, so maybe just have 1 ant update the table for the test
-	ant1.totalDistance = 92.06
+	ant1.totalDistance = 86.06
 	// assuming ant[0] started in town 1
 	testMap.answer.ants[0] = &ant1
 
@@ -317,16 +313,16 @@ func TestUpdatePheromoneTable(t *testing.T) {
 	ant2.tabu[1] = &town2
 	ant2.tabu[2] = &town3
 
-	ant2.totalDistance = 92.06
+	ant2.totalDistance = 86.06
 	testMap.answer.ants[1] = &ant2
 
 	ant3.tabu[0] = &town1
 	ant3.tabu[1] = &town2
 	ant3.tabu[2] = &town3
-	ant3.totalDistance = 92.06
+	ant3.totalDistance = 86.06
 	testMap.answer.ants[2] = &ant3
 
-	rho := 5.0
+	rho := 0.50
 	Q := 50.0
 	// Q/L = 0.5431
 	// since rho = 0.5, then the trail intensity will be half of what it was (in this case 0.5)
@@ -335,6 +331,12 @@ func TestUpdatePheromoneTable(t *testing.T) {
 
 	outcome := UpdatePheromoneTable(testMap.answer, rho, Q)
 
-	fmt.Println(outcome.pheromones)
+	for i := range outcome.pheromones {
+		for j := range outcome.pheromones[i] {
+			fmt.Println(outcome.pheromones[i][j].totalTrail)
+		}
+	}
+
+	fmt.Println(outcome.pheromones[0])
 
 }
