@@ -70,7 +70,7 @@ func UpdateMap(currentMap Map, numAnts int, alpha, beta, rho, Q float64) Map {
 	return updatedAnts
 }
 
-// UpdatePheromone Table takes the currentMap and two constants, rho and Q as input and updates the pheromone
+// UpdatePheromoneTable takes the currentMap and two constants, rho and Q as input and updates the pheromone
 // table once the ants have completed one cycle and returns the currentMap with updated pheromone values.
 func UpdatePheromoneTable(currentMap Map, rho float64, Q float64) Map {
 	for n := 0; n < len(currentMap.pheromones); n++ {

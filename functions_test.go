@@ -254,3 +254,89 @@ func TestPickNextTown(t *testing.T) {
 	//not sure if there'd be a way to have Go do this or make a test set b/c ant location and town position are randomized
 
 }
+
+func TestUpdatePheromoneTable(t *testing.T) {
+
+	type test struct {
+		initialTrail PheromoneTable
+		numTowns     int
+		width        float64
+		answer       Map
+	}
+
+	var testMap test
+
+	testMap.answer.width = 50
+	testMap.numTowns = 3
+	// might have to test if InitializeTrail is working
+	initialTrailIntensity := 1.0
+	testMap.answer.pheromones = InitializeTrail(testMap.numTowns, initialTrailIntensity)
+
+	// panic out of range issue below, but why?
+	
+	testMap.answer.towns = make([]*Town, 3)
+
+	var town1, town2, town3 Town
+
+	town1.label = 0
+	town1.position.x = 10
+	town1.position.y = 10
+	testMap.answer.towns[0] = &town1
+
+	town2.label = 1
+	town2.position.x = 10
+	town2.position.y = 40
+	testMap.answer.towns[1] = &town2
+
+	town3.label = 2
+	town3.position.x = 30
+	town3.position.y = 10
+	testMap.answer.towns[2] = &town3
+
+	testMap.answer.ants = make([]*Ant, 3)
+
+	var ant1, ant2, ant3 Ant
+
+	for i := 0 ; i <= 3; i ++ {
+		testMap.answer.ants[i].tabu = make([]*Town, 3)
+	}
+
+	ant1.tabu = make([]*Town,3)
+	ant2.tabu = make([]*Town,3)
+	ant3.tabu = make([]*Town,3)
+
+	ant1.tabu[0] = &town1
+	ant1.tabu[1] = &town2
+	ant1.tabu[2] = &town3
+	// wait Adonis, total distance would be 20+30+approx36.06 for each ant because there are only 3 options, so maybe just have 1 ant update the table for the test
+	ant1.totalDistance = 92.06
+	// assuming ant[0] started in town 1
+	testMap.answer.ants[0] = &ant1
+
+	ant2.tabu[0] = &town1
+	ant2.tabu[1] = &town2
+	ant2.tabu[2] = &town3
+
+	ant2.totalDistance = 92.06
+	testMap.answer.ants[1] = &ant2
+
+	ant3.tabu[0] = &town1
+	ant3.tabu[1] = &town2
+	ant3.tabu[2] = &town3
+	ant3.totalDistance = 92.06
+	testMap.answer.ants[2] = &ant3
+
+
+
+	rho := 5.0
+	Q := 50.0
+	// Q/L = 0.5431
+	// since rho = 0.5, then the trail intensity will be half of what it was (in this case 0.5)
+	// then add 0.5431, which will have an overall addition of 0.0431
+	// at the end of this single trial run, the pheromone table should read a 1.0431 for each trail since this ant travelled each route
+	
+	outcome := UpdatePheromoneTable(testMap.answer,rho, Q )
+	
+	fmt.Println(outcome.pheromones)
+
+}
