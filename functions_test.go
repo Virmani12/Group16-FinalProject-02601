@@ -297,9 +297,9 @@ func TestUpdatePheromoneTable(t *testing.T) {
 
 	var ant1, ant2, ant3 Ant
 
-	for i := 0; i <= 3; i++ {
+	/*for i := 0; i < 3; i++ {
 		testMap.answer.ants[i].tabu = make([]*Town, 3)
-	}
+	}*/
 
 	ant1.tabu = make([]*Town, 3)
 	ant2.tabu = make([]*Town, 3)
@@ -326,7 +326,7 @@ func TestUpdatePheromoneTable(t *testing.T) {
 	ant3.totalDistance = 92.06
 	testMap.answer.ants[2] = &ant3
 
-	rho := 5.0
+	rho := 0.5
 	Q := 50.0
 	// Q/L = 0.5431
 	// since rho = 0.5, then the trail intensity will be half of what it was (in this case 0.5)

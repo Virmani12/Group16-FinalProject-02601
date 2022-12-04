@@ -81,7 +81,15 @@ func UpdatePheromoneTable(currentMap Map, rho float64, Q float64) Map {
 
 			dtk := Q / currentMap.ants[i].totalDistance
 			currentMap.pheromones[a][b].deltaTrail += dtk
+			currentMap.pheromones[b][a].deltaTrail += dtk
 		}
+
+		a := currentMap.ants[i].tabu[len(currentMap.ants[i].tabu)-1].label
+		b := currentMap.ants[i].tabu[0].label
+
+		dtk := Q / currentMap.ants[i].totalDistance
+		currentMap.pheromones[a][b].deltaTrail += dtk
+
 	}
 
 	/*

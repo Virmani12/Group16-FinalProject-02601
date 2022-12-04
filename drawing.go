@@ -43,8 +43,8 @@ func DrawToCanvas(currentMap Map, canvasWidth int, lastPos int) image.Image {
 				pheromoneValue := math.Log10(currentMap.pheromones[a.label][b.label].totalTrail) / 17
 				//fmt.Println(pheromoneValue)
 				c.LineTo(b.position.x, b.position.y)
-				c.SetStrokeColor(canvas.MakeColor(0, 0, 255))
-				c.SetFillColor(canvas.MakeColor(0, 0, 255))
+				c.SetStrokeColor(canvas.MakeColor(0, 0, 0))
+				c.SetFillColor(canvas.MakeColor(0, 0, 0))
 				c.SetLineWidth(pheromoneValue)
 				c.Stroke()
 				c.FillStroke()
@@ -74,7 +74,7 @@ func DrawToCanvas(currentMap Map, canvasWidth int, lastPos int) image.Image {
 	c.FillStroke()
 
 	for _, b := range currentMap.towns {
-		c.SetFillColor(canvas.MakeColor(0, 0, 0))
+		c.SetFillColor(canvas.MakeColor(255, 0, 0))
 		c.Circle(b.position.x, b.position.y, 5.0)
 		c.Fill()
 	}
