@@ -137,6 +137,8 @@ func TestInitializeMap(t *testing.T) {
 		answer       Map
 	}
 
+	useValidation := false
+
 	var testMap test
 	var testTrail Trail
 	testTrail.totalTrail = 0.2
@@ -179,7 +181,7 @@ func TestInitializeMap(t *testing.T) {
 	towns3.position.y = 20
 	testMap.answer.towns[2] = &towns3
 
-	outcome := InitializeMap(testMap.initialTrail, testMap.numTowns, testMap.width)
+	outcome := InitializeMap(testMap.initialTrail, testMap.numTowns, testMap.width, useValidation)
 
 	for i := range outcome.pheromones {
 		for j := range outcome.pheromones[i] {
@@ -213,8 +215,9 @@ func TestPickNextTown(t *testing.T) {
 	initialPheromone := 1.
 	numAnts := 10
 	width := 20.
+	useValidation := false
 	testPheromoneTable := InitializeTrail(numTowns, initialPheromone)
-	currentMap := InitializeMap(testPheromoneTable, numTowns, width)
+	currentMap := InitializeMap(testPheromoneTable, numTowns, width, useValidation)
 	currentMap.distanceMatrix = InitializeDistanceMatrix(currentMap)
 	currentMap.ants = InitializeAnts(currentMap, numAnts)
 
@@ -329,14 +332,14 @@ func TestUpdatePheromoneTable(t *testing.T) {
 	// then add 0.5431, which will have an overall addition of 0.0431
 	// at the end of this single trial run, the pheromone table should read a 1.0431 for each trail since this ant travelled each route
 
-	outcome := UpdatePheromoneTable(testMap.answer, rho, Q)
+	outcomePheromone := UpdatePheromoneTable(testMap.answer, rho, Q)
 
-	for i := range outcome.pheromones {
-		for j := range outcome.pheromones[i] {
-			fmt.Println(outcome.pheromones[i][j].totalTrail)
+	for i := range outcomePheromone {
+		for j := range outcomePheromone[i] {
+			fmt.Println(outcomePheromone[i][j].totalTrail)
 		}
 	}
 
-	fmt.Println(outcome.pheromones[0])
+	fmt.Println(outcomePheromone[0])
 
 }

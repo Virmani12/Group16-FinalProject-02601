@@ -45,34 +45,36 @@ func AntColony(initialMap Map, numCycles, numAnts int, alpha, beta, rho, Q float
 func UpdateMap(currentMap Map, numAnts int, alpha, beta, rho, Q float64) Map {
 
 	//set updatedAnts to current map and initialize ants here (instead of main), this way we can reset the ants tabu list and initialize the new set of ants in one step
-	currentMap.ants = nil
-	currentMap.ants = InitializeAnts(currentMap, numAnts)
+	var updatedMap Map
+	updatedMap = currentMap
+	updatedMap.ants = nil
+	updatedMap.ants = InitializeAnts(updatedMap, numAnts)
 
 	//need to move ants from town to town, storing in currentMap.ants
-	for i := 0; i < len(currentMap.towns); i++ {
+	for i := 0; i < len(updatedMap.towns); i++ {
 
-		if i < len(currentMap.towns)-1 {
-			currentMap = UpdateAnts(currentMap, alpha, beta)
+		if i < len(updatedMap.towns)-1 {
+			updatedMap.ants = UpdateAnts(updatedMap, alpha, beta)
 		} else {
-			currentMap = ReturnTowns(currentMap)
+			updatedMap.ants = ReturnTowns(updatedMap)
 		}
 
 	}
 	//updatedAnts is the same as currentMap but with the ants field updated
 
 	//update the shortest tour found in this cycle
-	shortestTour := FindShortestTour(currentMap)
-	currentMap.shortestTours = append(currentMap.shortestTours, shortestTour)
+	shortestTour := FindShortestTour(updatedMap)
+	updatedMap.shortestTours = append(updatedMap.shortestTours, shortestTour)
 
 	//need to update currentMap.pheromones based on the routes the ants took
-	currentMap = UpdatePheromoneTable(currentMap, rho, Q) //updatedPheromones is the same as updatedAnts but with the pheromones field updated
+	updatedMap.pheromones = UpdatePheromoneTable(updatedMap, rho, Q) //updatedPheromones is the same as updatedAnts but with the pheromones field updated
 
-	return currentMap
+	return updatedMap
 }
 
 // UpdatePheromoneTable takes the currentMap and two constants, rho and Q as input and updates the pheromone
 // table once the ants have completed one cycle and returns the currentMap with updated pheromone values.
-func UpdatePheromoneTable(currentMap Map, rho float64, Q float64) Map {
+func UpdatePheromoneTable(currentMap Map, rho float64, Q float64) PheromoneTable {
 
 	for i := range currentMap.ants {
 		for j := 0; j < len(currentMap.ants[i].tabu)-1; j++ {
@@ -89,39 +91,16 @@ func UpdatePheromoneTable(currentMap Map, rho float64, Q float64) Map {
 
 		dtk := Q / currentMap.ants[i].totalDistance
 		currentMap.pheromones[a][b].deltaTrail += dtk
+		currentMap.pheromones[b][a].deltaTrail += dtk
 
 	}
 
-	/*
-		for n := 0; n < len(currentMap.pheromones); n++ {
-			for m := 0; m < len(currentMap.pheromones[n]); m++ {
-				if m != n {
-					for i := 0; i < len(currentMap.ants); i++ {
-						for j := 0; j < len(currentMap.ants[i].tabu)-1; j++ {
-							a := currentMap.ants[i].tabu[j].label
-							b := currentMap.ants[i].tabu[(j + 1)].label
-
-							//checking to see if the matrix is symmetrical
-							if a == n && b == m {
-
-								// quantity per unit of length of trail substance
-								dtk := Q / currentMap.ants[i].totalDistance
-
-								currentMap.pheromones[n][m].deltaTrail += dtk
-							}
-						}
-					}
-				}
-
-			}
-		}
-	*/
 	for n := 0; n < len(currentMap.pheromones); n++ {
 		for m := 0; m < len(currentMap.pheromones[n]); m++ {
 			if m != n {
 				//Updating the trail intensity(totalTrail) once the ant has completed one cycle
 				//1-rho represents the evaporation of pheromones from the trail
-				currentMap.pheromones[n][m].totalTrail += (rho * currentMap.pheromones[n][m].totalTrail) + currentMap.pheromones[n][m].deltaTrail
+				currentMap.pheromones[n][m].totalTrail = (rho * currentMap.pheromones[n][m].totalTrail) + currentMap.pheromones[n][m].deltaTrail
 
 				//reset deltaTrail to zero
 				currentMap.pheromones[n][m].deltaTrail = 0
@@ -132,11 +111,11 @@ func UpdatePheromoneTable(currentMap Map, rho float64, Q float64) Map {
 		//fmt.Println("")
 	}
 
-	return currentMap
+	return currentMap.pheromones
 }
 
 // on the last iteration of this cycle, this function is called and it closes the tour each ant took by moving it to the town it started at and updating the distance
-func ReturnTowns(currentMap Map) Map {
+func ReturnTowns(currentMap Map) []*Ant {
 
 	//for each ant, set their next town to their original town, caluclate the distance from cur to next, add it to their total distance, and set cur to the first town
 	for antIndex := range currentMap.ants {
@@ -150,7 +129,7 @@ func ReturnTowns(currentMap Map) Map {
 		currentMap.ants[antIndex].cur = currentMap.ants[antIndex].next
 	}
 
-	return currentMap
+	return currentMap.ants
 }
 
 // this function finds the shortest tour in this cycle based on each ants total distance
@@ -175,13 +154,13 @@ func FindShortestTour(currentMap Map) []*Town {
 
 // UpdateAnts takes currentMap and updates the ants field after moving to one more town
 // it returns a map that's the same as currentMap but with the new ants values
-func UpdateAnts(currentMap Map, alpha, beta float64) Map {
+func UpdateAnts(currentMap Map, alpha, beta float64) []*Ant {
 	//range through all ants and get what path each took to travel to each town
 	for antIndex := range currentMap.ants {
 		currentMap.ants[antIndex] = MoveAnt(currentMap.ants[antIndex], currentMap, alpha, beta)
 	}
 
-	return currentMap
+	return currentMap.ants
 }
 
 // MoveAnt takes the current ant, the list of towns, the pheromone table, and system parameters and simulates one ant's
@@ -299,7 +278,7 @@ func ComputeDistance(currentMap Map, tabuList []*Town) float64 {
 	return totalDist
 }
 
-func CalculateAvgDist(timePoints []Map, numCycles int) float64 {
+func ShortestTourAvgDist(timePoints []Map, numCycles int) float64 {
 	avgDist := 0.0
 	for i := range timePoints[numCycles-1].shortestTours {
 
@@ -314,6 +293,14 @@ func CalculateAvgDist(timePoints []Map, numCycles int) float64 {
 	}
 	avgDist = avgDist / (float64(numCycles))
 	return avgDist
+}
+
+func AvgDistOfTour(timePoint Map) float64 {
+	avgDist := 0.0
+	for i := range timePoint.ants {
+		avgDist += timePoint.ants[i].totalDistance
+	}
+	return avgDist / float64(len(timePoint.ants))
 }
 
 func PrintTour(tour []*Town) {
