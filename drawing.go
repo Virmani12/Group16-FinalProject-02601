@@ -5,9 +5,9 @@ import (
 	"image"
 )
 
-//This function creates a slice of images visually representing each cycles output
-//Input: slice of map timepoints, canvas width
-//Output: slice of images for each timepoint
+// This function creates a slice of images visually representing each cycles output
+// Input: slice of map timepoints, canvas width
+// Output: slice of images for each timepoint
 func AnimateSystem(timePoints []Map, canvasWidth int) []image.Image {
 	images := make([]image.Image, 0)
 
@@ -22,9 +22,9 @@ func AnimateSystem(timePoints []Map, canvasWidth int) []image.Image {
 	return images
 }
 
-//This function draws each map to an images by setting town points, edges between every two towns, and highlights the shortest tour in the map
-//Input: current map, canvas wideth
-//Output: image of the map
+// This function draws each map to an images by setting town points, edges between every two towns, and highlights the shortest tour in the map
+// Input: current map, canvas wideth
+// Output: image of the map
 func DrawToCanvas(currentMap Map, canvasWidth int) image.Image {
 
 	c := canvas.CreateNewCanvas(canvasWidth, canvasWidth)
