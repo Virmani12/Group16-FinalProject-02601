@@ -35,16 +35,22 @@ func DrawToCanvas(currentMap Map, canvasWidth int) image.Image {
 
 	//Set up all the edges between towns in the color black
 	//Also scales the pheromone value to change the edge width based off of the amount of pheromone along the edge
-	//STILL NEED TO FIGURE OUT HOW TO SCALE THIS VALUE CORRECTLY
 	for _, a := range currentMap.towns {
 		for _, b := range currentMap.towns {
 			c.MoveTo(a.position.x, a.position.y)
 			if a.label != b.label {
-				//pheromoneValue := math.Log10(currentMap.pheromones[a.label][b.label].totalTrail) / 17
+				pheromoneValue := currentMap.pheromones[a.label][b.label].totalTrail
 				c.LineTo(b.position.x, b.position.y)
 				c.SetStrokeColor(canvas.MakeColor(0, 0, 0))
 				c.SetFillColor(canvas.MakeColor(0, 0, 0))
-				c.SetLineWidth(0.5)
+				if pheromoneValue <= 0.5 {
+					c.SetLineWidth(0.5)
+				} else if pheromoneValue < 2.0 {
+					c.SetLineWidth(1.0)
+				} else {
+					c.SetLineWidth(1.5)
+				}
+
 				c.Stroke()
 				c.FillStroke()
 

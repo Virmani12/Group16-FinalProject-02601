@@ -36,7 +36,7 @@ func InitializeTrail(numTowns int, initialTrailIntensity float64) PheromoneTable
 }
 
 //InitializeMap creates initial map object before the simulation runs
-//Input: initialized pheromone table, number of towns, and the width of the map
+//Input: initialized pheromone table, number of towns, and the width of the map, boolean flag for if we want to use the Oliver30 validation set
 //Output: Map object with these fields set, shortest distance set to longest possible distance????
 //func InitializeMap(initialTrailTable PheromoneTable, numTowns, width int) Map
 
@@ -56,7 +56,7 @@ func InitializeMap(initialTrail PheromoneTable, numTowns int, width float64, val
 			curTown.position.y = rand.Float64() * initialMap.width
 			initialMap.towns[i] = &curTown
 		}
-	} else {
+	} else { //using Oliver30 data set
 		oliver := [][]int{
 			{54, 67},
 			{54, 62},
@@ -147,7 +147,6 @@ func InitializeAnts(initialMap Map, numAnts int) []*Ant {
 // Distance takes two position ordered pairs and it returns the distance between these two points in 2-D space.
 // This is used to calculate the distance between each town and all other towns, appending the value into a table
 func Distance(p1, p2 OrderedPair) float64 {
-	// this is the distance formula from days of precalculus long ago ...
 	deltaX := p1.x - p2.x
 	deltaY := p1.y - p2.y
 	return math.Sqrt(deltaX*deltaX + deltaY*deltaY)
