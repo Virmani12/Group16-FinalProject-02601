@@ -45,8 +45,8 @@ func buildTextBoxDemo(event gwu.Event) gwu.Comp {
 	length := gwu.NewLabel("")
 	length.Style().SetFontSize("80%").SetFontStyle(gwu.FontStyleItalic)
 	alphatb.AddEHandlerFunc(func(e gwu.Event) {
-		rem := 15 - len(alphatb.Text())
-		length.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
+		alpharem := 15 - len(alphatb.Text())
+		length.SetText(fmt.Sprintf("(%d character%s left...)", alpharem, plural(alpharem)))
 		e.MarkDirty(length)
 	}, gwu.ETypeChange, gwu.ETypeKeyUp)
 	row.Add(alphatb)
@@ -70,13 +70,13 @@ func buildTextBoxDemo(event gwu.Event) gwu.Comp {
 		e.MarkDirty(length)
 	}, gwu.ETypeChange, gwu.ETypeKeyUp)
 	row2.Add(betatb)
-	row2.Add(length)
+	row2.Add(length2)
 	p.Add(row2)
 	// space between last text box and next
 	p.AddVSpace(10)
 	/// new entry for rho new paramter
 
-	p.Add(gwu.NewLabel("Enter beta value (max 15 characters):"))
+	p.Add(gwu.NewLabel("Enter rho value (max 15 characters):"))
 	row3 := gwu.NewHorizontalPanel()
 	rhotb := gwu.NewTextBox("")
 	rhotb.SetMaxLength(15)
@@ -89,14 +89,14 @@ func buildTextBoxDemo(event gwu.Event) gwu.Comp {
 		e.MarkDirty(length)
 	}, gwu.ETypeChange, gwu.ETypeKeyUp)
 	row3.Add(rhotb)
-	row3.Add(length)
+	row3.Add(length3)
 	p.Add(row3)
 	// space between last text box and next
 	p.AddVSpace(10)
 
 	// parameter entry for Q
 
-	p.Add(gwu.NewLabel("Enter beta value (max 15 characters):"))
+	p.Add(gwu.NewLabel("Enter Q value (max 15 characters):"))
 	row4 := gwu.NewHorizontalPanel()
 	qtb := gwu.NewTextBox("")
 	qtb.SetMaxLength(15)
@@ -108,14 +108,14 @@ func buildTextBoxDemo(event gwu.Event) gwu.Comp {
 		length4.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
 		e.MarkDirty(length)
 	}, gwu.ETypeChange, gwu.ETypeKeyUp)
-	row4.Add(rhotb)
-	row4.Add(length)
+	row4.Add(qtb)
+	row4.Add(length4)
 	p.Add(row4)
 	// space between last text box and next
 	p.AddVSpace(10)
 
 	// parameter entry for numTowns
-	p.Add(gwu.NewLabel("Enter beta value (max 15 characters):"))
+	p.Add(gwu.NewLabel("Enter initial trail intensity value (max 15 characters):"))
 	row5 := gwu.NewHorizontalPanel()
 	initialinttb := gwu.NewTextBox("")
 	initialinttb.SetMaxLength(15)
@@ -127,14 +127,14 @@ func buildTextBoxDemo(event gwu.Event) gwu.Comp {
 		length5.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
 		e.MarkDirty(length)
 	}, gwu.ETypeChange, gwu.ETypeKeyUp)
-	row5.Add(rhotb)
-	row5.Add(length)
+	row5.Add(initialinttb)
+	row5.Add(length5)
 	p.Add(row5)
 	// space between last text box and next
 	p.AddVSpace(10)
 
 	// parameter entry for numTowns
-	p.Add(gwu.NewLabel("Enter beta value (max 15 characters):"))
+	p.Add(gwu.NewLabel("Enter number of towns (max 15 characters):"))
 	row6 := gwu.NewHorizontalPanel()
 	townstb := gwu.NewTextBox("")
 	townstb.SetMaxLength(15)
@@ -146,14 +146,14 @@ func buildTextBoxDemo(event gwu.Event) gwu.Comp {
 		length6.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
 		e.MarkDirty(length)
 	}, gwu.ETypeChange, gwu.ETypeKeyUp)
-	row6.Add(rhotb)
-	row6.Add(length)
+	row6.Add(townstb)
+	row6.Add(length6)
 	p.Add(row6)
 	// space between last text box and next
 	p.AddVSpace(10)
 
 	// parameter entry for numAnts
-	p.Add(gwu.NewLabel("Enter beta value (max 15 characters):"))
+	p.Add(gwu.NewLabel("Enter number of ants (max 15 characters):"))
 	row7 := gwu.NewHorizontalPanel()
 	antstb := gwu.NewTextBox("")
 	antstb.SetMaxLength(15)
@@ -165,9 +165,28 @@ func buildTextBoxDemo(event gwu.Event) gwu.Comp {
 		length7.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
 		e.MarkDirty(length)
 	}, gwu.ETypeChange, gwu.ETypeKeyUp)
-	row7.Add(rhotb)
-	row7.Add(length)
+	row7.Add(antstb)
+	row7.Add(length7)
 	p.Add(row7)
+	// space between last text box and next
+	p.AddVSpace(10)
+
+	// parameter entry for numAnts
+	p.Add(gwu.NewLabel("Enter number of cycles (max 15 characters):"))
+	row8 := gwu.NewHorizontalPanel()
+	cyclestb := gwu.NewTextBox("")
+	cyclestb.SetMaxLength(15)
+	cyclestb.AddSyncOnETypes(gwu.ETypeKeyUp)
+	length8 := gwu.NewLabel("")
+	length8.Style().SetFontSize("80%").SetFontStyle(gwu.FontStyleItalic)
+	cyclestb.AddEHandlerFunc(func(e gwu.Event) {
+		rem := 15 - len(cyclestb.Text())
+		length8.SetText(fmt.Sprintf("(%d character%s left...)", rem, plural(rem)))
+		e.MarkDirty(length)
+	}, gwu.ETypeChange, gwu.ETypeKeyUp)
+	row8.Add(cyclestb)
+	row8.Add(length8)
+	p.Add(row8)
 	// space between last text box and next
 	p.AddVSpace(10)
 
@@ -291,28 +310,30 @@ func buildShowcaseWin(sess gwu.Session) {
 	links.AddVSpace(5)
 	homeDemo := createDemo("Home", buildHomeDemo)
 	selectDemo(homeDemo, nil)
-	links.AddVSpace(5)
-	l := gwu.NewLabel("Component Palette")
-	l.Style().SetFontWeight(gwu.FontWeightBold).SetFontSize("110%")
-	links.Add(l)
-	links.AddVSpace(5)
-	l = gwu.NewLabel("Containers")
-	l.Style().SetFontWeight(gwu.FontWeightBold)
-	links.Add(l)
 	/*
-		createDemo("Expander", buildExpanderDemo)
-		createDemo("Link (as Container)", buildLinkContainerDemo)
-		createDemo("Panel", buildPanelDemo)
-		createDemo("Table", buildTableDemo)
-		createDemo("TabPanel", buildTabPanelDemo)
-		createDemo("Window", buildWindowDemo)
+		links.AddVSpace(5)
+		l := gwu.NewLabel("Component Palette")
+		l.Style().SetFontWeight(gwu.FontWeightBold).SetFontSize("110%")
+		links.Add(l)
+		links.AddVSpace(5)
+		l = gwu.NewLabel("Containers")
+		l.Style().SetFontWeight(gwu.FontWeightBold)
+		links.Add(l)
+
+			createDemo("Expander", buildExpanderDemo)
+			createDemo("Link (as Container)", buildLinkContainerDemo)
+			createDemo("Panel", buildPanelDemo)
+			createDemo("Table", buildTableDemo)
+			createDemo("TabPanel", buildTabPanelDemo)
+			createDemo("Window", buildWindowDemo)
 	*/
 	links.AddVSpace(5)
 	// can call l something else here
-	l = gwu.NewLabel("Input components")
+	l := gwu.NewLabel("Simulate Ants")
 	l.Style().SetFontWeight(gwu.FontWeightBold).SetDisplay(gwu.DisplayBlock)
 	links.Add(l)
-	createDemo("TextBox", buildTextBoxDemo)
+	createDemo("Parameters", buildTextBoxDemo)
+	//createDemo("Ants Gif", buildImageDemo)
 	/*
 		createDemo("CheckBox", buildCheckBoxDemo)
 		createDemo("ListBox", buildListBoxDemo)
