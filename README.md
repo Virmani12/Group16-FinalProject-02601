@@ -3,6 +3,7 @@
 ## Final Group Project for 02-601 "Programming for Scientists" at Carnegie Mellon University (Fall 2022)
 
 Ant-Colony Optimization for the Traveling Salesperson Problem
+
 Video demonstration:
 
 ## Getting Started
