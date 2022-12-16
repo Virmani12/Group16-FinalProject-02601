@@ -44,7 +44,7 @@ func main() {
 	fmt.Println("")
 
 	var timePoints []Map
-	numCycles := 2500
+	numCycles := 1000
 	numTowns := 30
 	numAnts := 30
 	initialIntensity := 0.01 //should be scaled based on number of towns and Q
@@ -79,7 +79,7 @@ func main() {
 
 	} else if simulationType == 2 {
 
-		Q := 5.0
+		Q := 500.0
 
 		var useOliver bool
 
@@ -106,7 +106,7 @@ func main() {
 
 	} else if simulationType == 3 {
 
-		Q := 10.0
+		Q := 500.0
 
 		var useOliver bool
 
@@ -133,6 +133,17 @@ func main() {
 
 	}
 
+	shortestDist := ComputeDistance(timePoints[numCycles-1], timePoints[numCycles-1].shortestTours[0])
+	for i := 1; i < len(timePoints[numCycles-1].shortestTours); i++ {
+
+		currDist := ComputeDistance(timePoints[numCycles-1], timePoints[numCycles-1].shortestTours[i])
+
+		if currDist < shortestDist {
+			shortestDist = currDist
+		}
+	}
+	fmt.Println("Shortest Distance found: ", shortestDist)
+
 	//calculate the average of the shortest distances found in each cycle
 	//and print out
 	avgDist := ShortestTourAvgDist(timePoints, numCycles)
@@ -141,6 +152,14 @@ func main() {
 	//Printing out the distance of the last tour
 	lastTourLength := ComputeDistance(timePoints[numCycles-1], timePoints[numCycles-1].shortestTours[numCycles-1])
 	fmt.Println("last tour distance: ", lastTourLength)
+
+	totalAverageLength := 0.0
+	for i := 0; i < len(timePoints); i++ {
+		currAvg := AvgDistOfTour(timePoints[i])
+		totalAverageLength += currAvg
+	}
+	totalAverageLength = totalAverageLength / float64(len(timePoints))
+	fmt.Println("Average length of tours: ", totalAverageLength)
 
 	//printing out the last tour
 	PrintTour(timePoints[numCycles-1].shortestTours[numCycles-1])

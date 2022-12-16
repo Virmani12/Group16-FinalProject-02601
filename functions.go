@@ -391,6 +391,11 @@ func ShortestTourAvgDist(timePoints []Map, numCycles int) float64 {
 			avgDist += dist
 		}
 
+		curTown := curTour[len(curTour)-1].label
+		nextTown := curTour[0].label
+		dist := timePoints[numCycles-1].distanceMatrix[curTown][nextTown]
+		avgDist += dist
+
 	}
 	avgDist = avgDist / (float64(numCycles))
 	return avgDist
