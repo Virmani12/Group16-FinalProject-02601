@@ -291,6 +291,7 @@ func PickNextTown(currentAnt *Ant, currentMap Map, alpha, beta float64) *Town {
 				trailProb := math.Pow(currentMap.pheromones[currentAnt.cur.label][currentMap.towns[townIndex].label].totalTrail, alpha)
 				//visibility value = 1/distance ^beta
 				distProb := math.Pow(1/(currentMap.distanceMatrix[currentAnt.cur.label][currentMap.towns[townIndex].label]), beta)
+				//fmt.Println(100 * ((trailProb * distProb) / totalProbability))
 				//weight = (trail weight * visibility weight) / total weight
 				choices[townIndex].Weight = int(100 * ((trailProb * distProb) / totalProbability))
 			}

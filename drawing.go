@@ -39,18 +39,10 @@ func DrawToCanvas(currentMap Map, canvasWidth int) image.Image {
 		for _, b := range currentMap.towns {
 			c.MoveTo(a.position.x, a.position.y)
 			if a.label != b.label {
-				pheromoneValue := currentMap.pheromones[a.label][b.label].totalTrail
 				c.LineTo(b.position.x, b.position.y)
 				c.SetStrokeColor(canvas.MakeColor(0, 0, 0))
 				c.SetFillColor(canvas.MakeColor(0, 0, 0))
-				if pheromoneValue <= 0.5 {
-					c.SetLineWidth(0.5)
-				} else if pheromoneValue < 2.0 {
-					c.SetLineWidth(1.0)
-				} else {
-					c.SetLineWidth(1.5)
-				}
-
+				c.SetLineWidth(1.0)
 				c.Stroke()
 				c.FillStroke()
 

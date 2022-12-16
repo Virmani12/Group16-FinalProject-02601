@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
 // main will run our optimization problem with varying sets of parameters
@@ -14,23 +15,36 @@ func main() {
 
 	var simulationType int
 	var townSet int
+	var alpha float64
+	var beta float64
+	var rho float64
 
 	fmt.Print("Select which simulation you would like to run: '1' for Ant-Cycle, '2' for Ant-Density, '3' for Ant-Quantity... ")
 	fmt.Scan(&simulationType)
 	fmt.Println("")
-	fmt.Print("Would you like to use a validation set or a random set of 30 towns? Type '1' for Oliver30 dataset, '2' for random town")
+	fmt.Print("Would you like to use a validation set or a random set of 30 towns? Type '1' for Oliver30 dataset, '2' for random town... ")
 	fmt.Scan(&townSet)
+	fmt.Println("")
+	fmt.Print("Now time to select parameters to adjust the algorithm performance...")
+	fmt.Print("Please provide a float64 value for the ALPHA parameter (importance towards pheromone): ")
+	fmt.Scan(&alpha)
+	fmt.Println("")
+	fmt.Print("Please provide a float64 value for the BETA parameter (importance towards distance): ")
+	fmt.Scan(&beta)
+	fmt.Println("")
+	fmt.Print("Finally, please provide a float64 value for the RHO parameter (pheromone decay rate): ")
+	fmt.Scan(&rho)
+	fmt.Println("")
+
 	if townSet == 1 {
-		fmt.Printf("Running simulation %d with the validation set", simulationType)
+		fmt.Printf("Running simulation %d with the validation set...alpha=%f, beta=%f, rho=%f", simulationType, alpha, beta, rho)
 	} else {
-		fmt.Printf("Running simulation %d with a random set of towns", simulationType)
+		fmt.Printf("Running simulation %d with a random set of towns...alpha=%f, beta=%f, rho=%f", simulationType, alpha, beta, rho)
 	}
+	fmt.Println("")
 
 	var timePoints []Map
-	numCycles := 1000
-	alpha := 1.0
-	beta := 5.0
-	rho := 0.50
+	numCycles := 2500
 	numTowns := 30
 	numAnts := 30
 	initialIntensity := 0.01 //should be scaled based on number of towns and Q
@@ -124,8 +138,6 @@ func main() {
 	avgDist := ShortestTourAvgDist(timePoints, numCycles)
 	fmt.Println("average shortest distances: ", avgDist)
 
-	fmt.Println(len(timePoints[numCycles-1].shortestTours))
-
 	//Printing out the distance of the last tour
 	lastTourLength := ComputeDistance(timePoints[numCycles-1], timePoints[numCycles-1].shortestTours[numCycles-1])
 	fmt.Println("last tour distance: ", lastTourLength)
@@ -138,13 +150,29 @@ func main() {
 
 	//convert to gif
 	fmt.Println("drawing images")
+
+	//setting gif file name based on algorithm type and parameters
+	var gifName string
+
+	//a,b,r = string version of alpha,beta,rho (0.9 --> "0_9")
+	a := fmt.Sprintf("%.2f", alpha)
+	a = strings.Replace(a, ".", "_", 1)
+
+	b := fmt.Sprintf("%.2f", beta)
+	b = strings.Replace(b, ".", "_", 1)
+
+	r := fmt.Sprintf("%.2f", rho)
+	r = strings.Replace(r, ".", "_", 1)
+
 	if simulationType == 1 {
-		gifhelper.ImagesToGIF(imageList, "ant-cycle")
+		gifName = fmt.Sprintf("ant-cycle-a%s-b%s-r%s", a, b, r)
+
 	} else if simulationType == 2 {
-		gifhelper.ImagesToGIF(imageList, "ant-density")
+		gifName = fmt.Sprintf("ant-density-a%s-b%s-r%s", a, b, r)
 	} else {
-		gifhelper.ImagesToGIF(imageList, "ant-quantity")
+		gifName = fmt.Sprintf("ant-quantity-a%s-b%s-r%s", a, b, r)
 	}
+	gifhelper.ImagesToGIF(imageList, gifName)
 
 	fmt.Println("GIF drawn")
 
@@ -164,16 +192,16 @@ func main() {
 	//create csv file for shortest tours
 	var shortestTourFileName string
 	if simulationType == 1 {
-		shortestTourFileName = "shortestToursAC.csv"
+		shortestTourFileName = fmt.Sprintf("shortestToursAC-a%s-b%s-r%s.csv", a, b, r)
 	} else if simulationType == 2 {
-		shortestTourFileName = "shortestToursAD.csv"
+		shortestTourFileName = fmt.Sprintf("shortestToursAD-a%s-b%s-r%s.csv", a, b, r)
 	} else {
-		shortestTourFileName = "shortestToursAQ.csv"
+		shortestTourFileName = fmt.Sprintf("shortestToursAQ-a%s-b%s-r%s.csv", a, b, r)
 	}
 	csvFile, err := os.Create(shortestTourFileName)
 
 	if err != nil {
-		log.Fatalf("failed creaing file: %s", err)
+		log.Fatalf("failed creating shortest tours file: %s", err)
 	}
 
 	//start a buffered writer
@@ -199,16 +227,16 @@ func main() {
 	//exporting each cycles average tour length to csv for analysis in R
 	var averageTourFileName string
 	if simulationType == 1 {
-		averageTourFileName = "averageCycleTourLengthAC.csv"
+		averageTourFileName = fmt.Sprintf("averageCycleTourLengthAC-a%s-b%s-r%s.csv", a, b, r)
 	} else if simulationType == 2 {
-		averageTourFileName = "averageCycleTourLengthAD.csv"
+		averageTourFileName = fmt.Sprintf("averageCycleTourLengthAD-a%s-b%s-r%s.csv", a, b, r)
 	} else {
-		averageTourFileName = "averageCycleTourLengthAQ.csv"
+		averageTourFileName = fmt.Sprintf("averageCycleTourLengthAQ-a%s-b%s-r%s.csv", a, b, r)
 	}
 	csvFile, err = os.Create(averageTourFileName)
 
 	if err != nil {
-		log.Fatalf("failed creating file: %s", err)
+		log.Fatalf("failed creating average cycle tour length file: %s", err)
 	}
 
 	//start a new buffered writer
